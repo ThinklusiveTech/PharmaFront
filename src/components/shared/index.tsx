@@ -484,23 +484,39 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         }
     };
 
-    // Group fields by header
-    const groups: { header: FieldConfig | null; fields: FieldConfig[] }[] = [];
+    // Group fields by header or dynamic fields
+    const hasHeaders = fields.some(f => f.type === "header");
+
+    type FormGroup =
+        | { type: "header"; header: FieldConfig; fields: FieldConfig[] }
+        | { type: "dynamic"; field: FieldConfig }
+        | { type: "flat"; fields: FieldConfig[] };
+
+    const groups: FormGroup[] = [];
     let currentGroup: { header: FieldConfig | null; fields: FieldConfig[] } = { header: null, fields: [] };
+
+    const flushCurrentGroup = () => {
+        if (currentGroup.header) {
+            groups.push({ type: "header", header: currentGroup.header, fields: currentGroup.fields });
+            currentGroup = { header: null, fields: [] };
+        } else if (currentGroup.fields.length > 0) {
+            groups.push({ type: "flat", fields: currentGroup.fields });
+            currentGroup = { header: null, fields: [] };
+        }
+    };
 
     fields.forEach((field) => {
         if (field.type === "header") {
-            if (currentGroup.fields.length > 0 || currentGroup.header) {
-                groups.push(currentGroup);
-            }
+            flushCurrentGroup();
             currentGroup = { header: field, fields: [] };
+        } else if (field.type === "dynamic") {
+            flushCurrentGroup();
+            groups.push({ type: "dynamic", field });
         } else {
             currentGroup.fields.push(field);
         }
     });
-    if (currentGroup.fields.length > 0 || currentGroup.header) {
-        groups.push(currentGroup);
-    }
+    flushCurrentGroup();
 
     const renderFieldsGrid = (groupFields: FieldConfig[]) => {
         const gridItems = groupFields.map((field, idx) => {
@@ -561,16 +577,31 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         );
     };
 
-    // If there is only one group and no header, render it as a flat form
-    if (groups.length === 1 && groups[0].header === null) {
-        return renderFieldsGrid(groups[0].fields);
+    // If there are no headers in the step, render as a flat form
+    if (!hasHeaders) {
+        return renderFieldsGrid(fields);
     }
 
     return (
         <div className="space-y-4 text-left">
             {groups.map((group, groupIdx) => {
+                if (group.type === "dynamic") {
+                    return (
+                        <div key={group.field.key || groupIdx} className="w-full">
+                            {renderFieldComponent(group.field)}
+                        </div>
+                    );
+                }
+
+                if (group.type === "flat") {
+                    return (
+                        <div key={`flat-${groupIdx}`} className="w-full">
+                            {renderFieldsGrid(group.fields)}
+                        </div>
+                    );
+                }
+
                 const header = group.header;
-                if (!header) return null;
                 const isOpen = !!openHeaders[header.key];
 
                 const groupFields = group.fields.filter(f => f.type !== "header");
@@ -595,21 +626,21 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                             onClick={() => toggleHeader(header.key)}
                             className={`px-6 py-4 flex items-center justify-between cursor-pointer transition-colors ${style.headerBg}`}
                         >
-                            <div className="flex items-center gap-3.5">
-                                <span className="text-sm font-bold font-display">
-                                    {header.label}
-                                </span>
+                            <span className="text-sm font-bold font-display">
+                                {header.label}
+                            </span>
+                            <div className="flex items-center gap-3">
                                 {totalCount > 0 && (
                                     <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow-2xs ${style.badgeClass}`}>
                                         {filledCount}/{totalCount}
                                     </span>
                                 )}
+                                {isOpen ? (
+                                    <FiChevronUp className="w-4 h-4 text-slate-500" />
+                                ) : (
+                                    <FiChevronRight className="w-4 h-4 text-slate-500" />
+                                )}
                             </div>
-                            {isOpen ? (
-                                <FiChevronUp className="w-4 h-4 text-slate-500" />
-                            ) : (
-                                <FiChevronRight className="w-4 h-4 text-slate-500" />
-                            )}
                         </div>
 
                         {/* Accordion panel content */}

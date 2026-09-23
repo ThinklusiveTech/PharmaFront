@@ -425,4 +425,38 @@ export const exportAsJson = (data: any, defaultFileName: string = "export"): voi
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
-};
+};
+
+// ─── Development Feasibility & Timeline Dropdown Options ─────────────────────────────
+export const RECOMMENDED_REGULATORY_PATHWAY_OPTIONS = [
+  { label: "NDA", value: "NDA" },
+  { label: "505(b)(2)", value: "505(b)(2)" },
+  { label: "ANDA", value: "ANDA" },
+];
+
+export const OVERALL_CMC_COMPLEXITY_RATING_OPTIONS = [
+  { label: "Low", value: "Low" },
+  { label: "Medium", value: "Medium" },
+  { label: "High", value: "High" },
+];
+
+export const FIRST_TO_FILE_EXCLUSIVITY_OPTIONS = [
+  { label: "Yes", value: "Yes" },
+  { label: "No", value: "No" },
+  { label: "Unknown", value: "Unknown" },
+];
+
+export const THERAPEUTIC_EQUIVALENCE_TE_CODE_OPTIONS = [
+  { label: "AB", value: "AB" },
+  { label: "AA", value: "AA" },
+  { label: "AT", value: "AT" },
+  { label: "BX", value: "BX" },
+  { label: "Other", value: "Other" },
+];
+
+export const BD_RECOMMENDATION_OPTIONS = [
+  { label: "Pursue", value: "Pursue" },
+  { label: "Monitor", value: "Monitor" },
+  { label: "Deprioritize", value: "Deprioritize" },
+];
+

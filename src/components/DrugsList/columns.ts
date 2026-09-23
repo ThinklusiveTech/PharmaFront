@@ -1,5 +1,5 @@
 import type { ColDef } from "ag-grid-community";
-import { valueFormatter } from "../../utils/utils";
+import { getCreatedByUser, valueFormatter } from "../../utils/utils";
 import BookmarkCellRenderer from "../DrugTable/BookmarkCellRenderer";
 import BrandNameCellRenderer from "../DrugTable/BrandNameCellRenderer";
 import ActionMenuCellRenderer from "../DrugTable/ActionMenuCellRenderer";
@@ -12,6 +12,19 @@ const cellWrapStyle = {
 };
 
 export const cmcintelColumns: ColDef[] = [
+  // Actions column pinned to the left
+  {
+    headerName: 'Actions',
+    field: 'actions',
+    cellRenderer: ActionMenuCellRenderer,
+    width: 100,
+    pinned: 'left',
+    sortable: false,
+    filter: false,
+    resizable: false,
+    suppressHeaderMenuButton: true,
+    suppressColumnsToolPanel: true
+  },
   { headerName: 'Bookmark', field: 'bookmark', cellRenderer: BookmarkCellRenderer, width: 100, sortable: false, filter: true, suppressColumnsToolPanel: true },
   { headerName: 'CID', field: 'cid', width: 90, sortable: true, filter: true, valueFormatter },
   { headerName: 'Drug Name', field: 'ProductOverview.drugName', cellRenderer: BrandNameCellRenderer, minWidth: 150, width: 170, wrapText: true, autoHeight: true, cellStyle: cellWrapStyle, sortable: true, filter: true },
@@ -21,8 +34,8 @@ export const cmcintelColumns: ColDef[] = [
   { headerName: 'Region', field: 'ProductOverview.firstApprovedRegion', minWidth: 160, width: 180, wrapText: true, autoHeight: true, cellStyle: cellWrapStyle, sortable: true, filter: true, valueFormatter: (params: any) => params.value || params.data?.RegulatoryInsights?.regionalApproval || params.data?.region || params.data?.firstApprovedRegion || '-' },
   { headerName: 'Molecular Formula', field: 'PhysicalChemicalProperties.molecularFormula', minWidth: 180, width: 200, wrapText: true, autoHeight: true, cellStyle: cellWrapStyle, sortable: true, filter: true, valueFormatter },
   {
-    headerName: 'Therapeutic Area',
-    field: 'ProductOverview.therapeuticArea',
+    headerName: 'Approved Indications',
+    field: 'ProductOverview.approvedIndications',
     minWidth: 200,
     width: 240,
     wrapText: true,
@@ -30,7 +43,24 @@ export const cmcintelColumns: ColDef[] = [
     cellStyle: cellWrapStyle,
     sortable: true,
     filter: true,
-    valueFormatter: (params: any) => params.value || params.data?.ProductOverview?.therapeuticArea || params.data?.therapeuticArea || '-'
+    valueFormatter: (params: any) => {
+      const val = params.value || params.data?.ProductOverview?.approvedIndications || params.data?.approvedIndications;
+      if (!val) return '-';
+      if (Array.isArray(val)) return val.filter(Boolean).join(', ');
+      return String(val);
+    }
+  },
+  {
+    headerName: 'Created By',
+    field: 'createdByName',
+    minWidth: 150,
+    width: 170,
+    wrapText: true,
+    autoHeight: true,
+    cellStyle: cellWrapStyle,
+    sortable: true,
+    filter: true,
+    valueFormatter: (params: any) => getCreatedByUser(params.data, '-') || '-'
   },
 
   // More columns hidden by default
@@ -40,21 +70,7 @@ export const cmcintelColumns: ColDef[] = [
   { headerName: 'Therapeutic Class', field: 'ProductOverview.therapeuticClass', minWidth: 180, width: 220, wrapText: true, autoHeight: true, cellStyle: cellWrapStyle, sortable: true, filter: true, hide: true, valueFormatter },
   { headerName: 'Description', field: 'ExecutiveSummary', minWidth: 300, width: 400, wrapText: true, autoHeight: true, cellStyle: cellWrapStyle, sortable: true, filter: true, hide: true, valueFormatter },
   { headerName: 'Created Date', field: 'createdAt', width: 150, sortable: true, filter: true, hide: true, valueFormatter },
-  { headerName: 'Updated Date', field: 'updatedAt', width: 150, sortable: true, filter: true, hide: true, valueFormatter },
-
-  // Actions column pinned to the right
-  {
-    headerName: 'Actions',
-    field: 'actions',
-    cellRenderer: ActionMenuCellRenderer,
-    width: 100,
-    pinned: 'right',
-    sortable: false,
-    filter: false,
-    resizable: false,
-    suppressHeaderMenuButton: true,
-    suppressColumnsToolPanel: true
-  }
+  { headerName: 'Updated Date', field: 'updatedAt', width: 150, sortable: true, filter: true, hide: true, valueFormatter }
 ];
 
 export const columns: any = [

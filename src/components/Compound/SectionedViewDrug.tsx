@@ -237,6 +237,32 @@ export default function SectionedViewDrug() {
     const displayCid = getDisplayCid(drugToDisplay, cid);
     const lastUpdatedDate = getDrugLastModifiedDate(drugToDisplay, cid);
 
+    const formattedGlobalAnnualRevenue = useMemo(() => {
+        const rev = flatDrug.globalAnnualRevenue;
+        if (!rev) return "—";
+        if (Array.isArray(rev)) {
+            if (rev.length === 0) return "—";
+            return rev
+                .map((item: any) => {
+                    if (!item) return "";
+                    if (typeof item === 'string') return item;
+                    const revPart = [item.currency, item.revenue].filter(Boolean).join(" ") || item.revenue || "";
+                    const regionPart = [item.region, item.fiscalYear].filter(Boolean).join(" ");
+                    if (regionPart && revPart) return `${revPart} (${regionPart})`;
+                    return revPart || regionPart || "";
+                })
+                .filter(Boolean)
+                .join("; ") || "—";
+        }
+        if (typeof rev === 'object') {
+            const revPart = [rev.currency, rev.revenue].filter(Boolean).join(" ") || rev.revenue || "";
+            const regionPart = [rev.region, rev.fiscalYear].filter(Boolean).join(" ");
+            if (regionPart && revPart) return `${revPart} (${regionPart})`;
+            return revPart || regionPart || "—";
+        }
+        return String(rev) || "—";
+    }, [flatDrug.globalAnnualRevenue]);
+
     const getSectionData = (key?: string) => {
         if (!key || !drugToDisplay) return null;
         return drugToDisplay[key] ?? displayData?.[key] ?? null;
@@ -565,7 +591,7 @@ export default function SectionedViewDrug() {
                                         </div>
                                         <div className="flex justify-between py-2.5">
                                             <span className="font-semibold text-slate-400">Global Annual Revenue</span>
-                                            <span className="font-bold text-slate-800">{flatDrug.globalAnnualRevenue || "—"}</span>
+                                            <span className="font-bold text-slate-800 text-right max-w-[200px] truncate" title={formattedGlobalAnnualRevenue}>{formattedGlobalAnnualRevenue}</span>
                                         </div>
                                         <div className="flex justify-between py-2.5">
                                             <span className="font-semibold text-slate-400">DMF Vendors Count</span>

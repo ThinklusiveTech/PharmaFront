@@ -1,4 +1,11 @@
 import { CustomForm, type FieldConfig } from "../shared";
+import {
+    RECOMMENDED_REGULATORY_PATHWAY_OPTIONS,
+    OVERALL_CMC_COMPLEXITY_RATING_OPTIONS,
+    FIRST_TO_FILE_EXCLUSIVITY_OPTIONS,
+    THERAPEUTIC_EQUIVALENCE_TE_CODE_OPTIONS,
+    BD_RECOMMENDATION_OPTIONS,
+} from "../../utils/utils";
 
 // Step 1: Executive Summary
 export const addExecutiveSummary: FieldConfig[] = [
@@ -80,16 +87,77 @@ export const addProductOverview: FieldConfig[] = [
         placeholder: "Select First Approved Region",
     },
     {
-        key: "commercialInfoSectionHeader",
-        label: "Commercial Information",
-        type: "header",
-    },
-    {
         key: "globalAnnualRevenue",
         label: "Global Annual Revenue",
-        type: "text",
+        type: "dynamic",
         required: false,
-        placeholder: "Enter Global Annual Revenue",
+        singleFieldInRow: true,
+        dynamicComponent: (key: string, field: any, form: any) => (
+            <CustomForm key={key} field={field} form={form} />
+        ),
+        dynamicFields: [
+            {
+                key: "fiscalYear",
+                label: "Fiscal Year",
+                type: "datepicker",
+                required: false,
+                placeholder: "Select Fiscal Year",
+            },
+            {
+                key: "region",
+                label: "Region",
+                type: "dropdown",
+                required: false,
+                placeholder: "Select Region",
+            },
+            {
+                key: "revenue",
+                label: "Revenue",
+                type: "text",
+                required: false,
+                placeholder: "Enter Revenue (e.g. $1.2B)",
+            },
+            {
+                key: "currency",
+                label: "Currency",
+                type: "text",
+                required: false,
+                placeholder: "Enter Currency (e.g. USD)",
+            },
+        ],
+    },
+    {
+        key: "marketingRights",
+        label: "Marketing/Distribution Rights",
+        type: "dynamic",
+        required: false,
+        singleFieldInRow: true,
+        dynamicComponent: (key: string, field: any, form: any) => (
+            <CustomForm key={key} field={field} form={form} />
+        ),
+        dynamicFields: [
+            {
+                key: "country",
+                label: "Country",
+                type: "dropdown",
+                required: false,
+                placeholder: "Select Country",
+            },
+            {
+                key: "company",
+                label: "Company",
+                type: "text",
+                required: false,
+                placeholder: "Enter Company (e.g. ABC)",
+            },
+            {
+                key: "typeOfRights",
+                label: "Type of Rights",
+                type: "text",
+                required: false,
+                placeholder: "Enter Type of Rights (e.g. Marketing or distribution)",
+            },
+        ],
     },
     {
         key: "lossOfExclusivitySectionHeader",
@@ -119,22 +187,97 @@ export const addProductOverview: FieldConfig[] = [
     },
     {
         key: "expiredDate",
-        label: "Expired Date",
+        label: "Loss of Exclusivity (LOE) Date",
         type: "datepicker",
         required: false,
-        placeholder: "Select Expired Date",
+        placeholder: "Select Loss of Exclusivity (LOE) Date",
     },
     {
-        key: "marketDataSectionHeader",
-        label: "Market Data",
-        type: "header",
-    },
-    {
-        key: "dosageForms",
-        label: "Dosage Forms",
-        type: "text",
+        key: "timeFromLoeToFirstGenericLaunchMonths",
+        label: "Time from LOE to First Generic Launch (months)",
+        type: "number",
         required: false,
-        placeholder: "Enter Dosage Forms",
+        placeholder: "Enter months (e.g. 6)",
+    },
+    {
+        key: "dosageFormsAndStrengths",
+        label: "Dosage Forms & Strengths",
+        type: "dynamic",
+        required: false,
+        singleFieldInRow: true,
+        dynamicComponent: (key: string, field: any, form: any) => (
+            <CustomForm key={key} field={field} form={form} />
+        ),
+        dynamicFields: [
+            {
+                key: "dosageForm",
+                label: "Dosage Form",
+                type: "dropdown",
+                required: false,
+                placeholder: "Select Dosage Form",
+                options: [
+                    "Tablet",
+                    "Capsule",
+                    "Injection",
+                    "Solution",
+                    "Suspension",
+                    "Inhalation",
+                    "Cream",
+                    "Ointment",
+                    "Gel",
+                    "Powder",
+                    "Drops",
+                    "Suppository",
+                    "Syrup",
+                    "Transdermal Patch",
+                    "Spray",
+                    "Implant"
+                ].map((d) => ({ label: d, value: d })),
+            },
+            {
+                key: "doseStrength",
+                label: "Dose/Strength",
+                type: "text",
+                required: false,
+                placeholder: "Enter Dose/Strength (e.g. 100 mg)",
+            },
+            {
+                key: "route",
+                label: "Route",
+                type: "dropdown",
+                required: false,
+                placeholder: "Select Route",
+                options: [
+                    "Oral",
+                    "Intravenous (IV)",
+                    "Intramuscular (IM)",
+                    "Subcutaneous (SC)",
+                    "Topical",
+                    "Inhalation",
+                    "Sublingual",
+                    "Buccal",
+                    "Rectal",
+                    "Nasal",
+                    "Ophthalmic",
+                    "Otic",
+                    "Transdermal"
+                ].map((r) => ({ label: r, value: r })),
+            },
+            {
+                key: "marketingStatus",
+                label: "Marketing Status",
+                type: "dropdown",
+                required: false,
+                placeholder: "Select Marketing Status",
+                options: [
+                    "Marketed",
+                    "Withdrawn",
+                    "Discontinued",
+                    "Approved",
+                    "Investigational"
+                ].map((m) => ({ label: m, value: m })),
+            },
+        ],
     },
     {
         key: "additionalInfoSectionHeader",
@@ -147,6 +290,78 @@ export const addProductOverview: FieldConfig[] = [
         type: "text",
         required: false,
         placeholder: "Enter Version",
+    },
+];
+
+// Step 3: Development Feasibility & Timeline
+export const addDevelopmentFeasibility: FieldConfig[] = [
+    {
+        key: "recommendedRegulatoryPathway",
+        label: "Recommended Regulatory Pathway",
+        type: "dropdown",
+        required: false,
+        placeholder: "Select Recommended Regulatory Pathway",
+        options: RECOMMENDED_REGULATORY_PATHWAY_OPTIONS,
+    },
+    {
+        key: "overallCmcComplexityRating",
+        label: "Overall CMC Complexity Rating",
+        type: "dropdown",
+        required: false,
+        placeholder: "Select Overall CMC Complexity Rating",
+        options: OVERALL_CMC_COMPLEXITY_RATING_OPTIONS,
+    },
+    {
+        key: "estimatedDsDevelopmentTimelineMonths",
+        label: "Estimated DS Development Timeline (months)",
+        type: "number",
+        required: false,
+        placeholder: "Enter timeline in months",
+    },
+    {
+        key: "estimatedDpDevelopmentTimelineMonths",
+        label: "Estimated DP Development Timeline (months)",
+        type: "number",
+        required: false,
+        placeholder: "Enter timeline in months",
+    },
+    {
+        key: "estimatedTotalTimeToFilingMonths",
+        label: "Estimated Total Time-to-Filing (months)",
+        type: "number",
+        required: false,
+        placeholder: "Enter timeline in months",
+    },
+    {
+        key: "keyDevelopmentRiskFlags",
+        label: "Key Development Risk Flags",
+        type: "text",
+        required: false,
+        placeholder: "Enter Key Development Risk Flags",
+    },
+    {
+        key: "firstToFile180DayExclusivityOpportunity",
+        label: "First-to-File / 180-Day Exclusivity Opportunity",
+        type: "dropdown",
+        required: false,
+        placeholder: "Select First-to-File / 180-Day Exclusivity Opportunity",
+        options: FIRST_TO_FILE_EXCLUSIVITY_OPTIONS,
+    },
+    {
+        key: "therapeuticEquivalenceTeCode",
+        label: "Therapeutic Equivalence (TE) Code",
+        type: "dropdown",
+        required: false,
+        placeholder: "Select Therapeutic Equivalence (TE) Code",
+        options: THERAPEUTIC_EQUIVALENCE_TE_CODE_OPTIONS,
+    },
+    {
+        key: "bdRecommendation",
+        label: "BD Recommendation",
+        type: "dropdown",
+        required: false,
+        placeholder: "Select BD Recommendation",
+        options: BD_RECOMMENDATION_OPTIONS,
     },
 ];
 

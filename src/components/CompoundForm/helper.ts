@@ -50,12 +50,43 @@ export const flattenDrug = (drug: any): any => {
         firstApprovedDate: formatDateForInput(drug.ProductOverview?.firstApprovedDate ?? drug.firstApprovedDate ?? drug.ProductOverview?.firstApprovedYear ?? drug.firstApprovedYear),
         firstApprovedRegion: drug.ProductOverview?.firstApprovedRegion ?? drug.firstApprovedRegion ?? "",
         dosageForms: drug.ProductOverview?.dosageForms ?? drug.dosageForms ?? "",
+        dosageFormsAndStrengths: Array.isArray(drug.ProductOverview?.dosageFormsAndStrengths)
+            ? drug.ProductOverview.dosageFormsAndStrengths
+            : (Array.isArray(drug.ProductOverview?.dosageFormAndStrength)
+                ? drug.ProductOverview.dosageFormAndStrength
+                : (Array.isArray(drug.dosageFormsAndStrengths)
+                    ? drug.dosageFormsAndStrengths
+                    : (Array.isArray(drug.dosageFormAndStrength) ? drug.dosageFormAndStrength : []))),
         lossOfExclusivity: loeList,
         exclusivityCode: firstLoe.exclusivityCode ?? drug.ProductOverview?.exclusivityCode ?? drug.exclusivityCode ?? "",
         country: firstLoe.country ?? drug.ProductOverview?.country ?? drug.country ?? "",
         regulatoryBody: firstLoe.regulatoryBody ?? drug.ProductOverview?.regulatoryBody ?? drug.regulatoryBody ?? "",
-        expiredDate: formatDateForInput(firstLoe.expiredDate ?? drug.ProductOverview?.expiredDate ?? drug.expiredDate),
-        globalAnnualRevenue: drug.ProductOverview?.globalAnnualRevenue ?? drug.globalAnnualRevenue ?? "",
+        expiredDate: formatDateForInput(firstLoe.expiredDate ?? drug.ProductOverview?.expiredDate ?? drug.ProductOverview?.lossOfExclusivityDate ?? drug.expiredDate),
+        lossOfExclusivityDate: formatDateForInput(firstLoe.expiredDate ?? drug.ProductOverview?.expiredDate ?? drug.ProductOverview?.lossOfExclusivityDate ?? drug.expiredDate),
+        timeFromLoeToFirstGenericLaunchMonths: drug.ProductOverview?.timeFromLoeToFirstGenericLaunchMonths ?? drug.timeFromLoeToFirstGenericLaunchMonths ?? drug.ProductOverview?.timeFromLoeToFirstGenericLaunch ?? drug.timeFromLoeToFirstGenericLaunch ?? "",
+        globalAnnualRevenue: Array.isArray(drug.ProductOverview?.globalAnnualRevenue)
+            ? drug.ProductOverview.globalAnnualRevenue
+            : (Array.isArray(drug.globalAnnualRevenue)
+                ? drug.globalAnnualRevenue
+                : (typeof drug.ProductOverview?.globalAnnualRevenue === 'string' && drug.ProductOverview.globalAnnualRevenue.trim()
+                    ? [{ fiscalYear: "", region: "", revenue: drug.ProductOverview.globalAnnualRevenue, currency: "USD" }]
+                    : [])),
+        marketingRights: Array.isArray(drug.ProductOverview?.marketingRights)
+            ? drug.ProductOverview.marketingRights
+            : (Array.isArray(drug.ProductOverview?.marketingDistributionRights)
+                ? drug.ProductOverview.marketingDistributionRights
+                : (Array.isArray(drug.marketingRights) ? drug.marketingRights : [])),
+
+        // Development Feasibility & Timeline
+        recommendedRegulatoryPathway: drug.DevelopmentFeasibility?.recommendedRegulatoryPathway ?? drug.recommendedRegulatoryPathway ?? "",
+        overallCmcComplexityRating: drug.DevelopmentFeasibility?.overallCmcComplexityRating ?? drug.overallCmcComplexityRating ?? "",
+        estimatedDsDevelopmentTimelineMonths: drug.DevelopmentFeasibility?.estimatedDsDevelopmentTimelineMonths ?? drug.estimatedDsDevelopmentTimelineMonths ?? "",
+        estimatedDpDevelopmentTimelineMonths: drug.DevelopmentFeasibility?.estimatedDpDevelopmentTimelineMonths ?? drug.estimatedDpDevelopmentTimelineMonths ?? "",
+        estimatedTotalTimeToFilingMonths: drug.DevelopmentFeasibility?.estimatedTotalTimeToFilingMonths ?? drug.estimatedTotalTimeToFilingMonths ?? "",
+        keyDevelopmentRiskFlags: drug.DevelopmentFeasibility?.keyDevelopmentRiskFlags ?? drug.keyDevelopmentRiskFlags ?? "",
+        firstToFile180DayExclusivityOpportunity: drug.DevelopmentFeasibility?.firstToFile180DayExclusivityOpportunity ?? drug.firstToFile180DayExclusivityOpportunity ?? "",
+        therapeuticEquivalenceTeCode: drug.DevelopmentFeasibility?.therapeuticEquivalenceTeCode ?? drug.therapeuticEquivalenceTeCode ?? "",
+        bdRecommendation: drug.DevelopmentFeasibility?.bdRecommendation ?? drug.bdRecommendation ?? "",
 
         // Regulatory Insights
         regulatoryInsights: drug.RegulatoryInsights?.regulatoryInsights ?? drug.regulatoryInsights ?? "",
@@ -190,8 +221,18 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
             therapeuticArea: formData.therapeuticArea,
             firstApprovedDate: formData.firstApprovedDate,
             firstApprovedRegion: formData.firstApprovedRegion,
-            dosageForms: formData.dosageForms,
-            globalAnnualRevenue: formData.globalAnnualRevenue,
+            dosageForms: (Array.isArray(formData.dosageFormsAndStrengths) && formData.dosageFormsAndStrengths.length > 0)
+                ? formData.dosageFormsAndStrengths.map((d: any) => [d.dosageForm, d.doseStrength].filter(Boolean).join(" ")).filter(Boolean).join(", ")
+                : (Array.isArray(formData.dosageFormAndStrength) && formData.dosageFormAndStrength.length > 0
+                    ? formData.dosageFormAndStrength.map((d: any) => [d.dosageForm, d.doseStrength].filter(Boolean).join(" ")).filter(Boolean).join(", ")
+                    : (formData.dosageForms || "")),
+            dosageFormAndStrength: formData.dosageFormsAndStrengths || formData.dosageFormAndStrength || [],
+            dosageFormsAndStrengths: formData.dosageFormsAndStrengths || formData.dosageFormAndStrength || [],
+            globalAnnualRevenue: formData.globalAnnualRevenue || [],
+            marketingRights: formData.marketingRights || formData.marketingDistributionRights || [],
+            marketingDistributionRights: formData.marketingRights || formData.marketingDistributionRights || [],
+            timeFromLoeToFirstGenericLaunchMonths: formData.timeFromLoeToFirstGenericLaunchMonths ?? formData.timeFromLoeToFirstGenericLaunch ?? "",
+            timeFromLoeToFirstGenericLaunch: formData.timeFromLoeToFirstGenericLaunchMonths ?? formData.timeFromLoeToFirstGenericLaunch ?? "",
             createdBy: formData.createdBy,
             createdByName: formData.createdByName,
             createdByEmail: formData.createdByEmail,
@@ -203,6 +244,19 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
                     expiredDate: formData.expiredDate,
                 }
             ] : (formData.lossOfExclusivity || []),
+            lossOfExclusivityDate: formData.expiredDate || formData.lossOfExclusivityDate,
+            expiredDate: formData.expiredDate,
+        },
+        DevelopmentFeasibility: {
+            recommendedRegulatoryPathway: formData.recommendedRegulatoryPathway,
+            overallCmcComplexityRating: formData.overallCmcComplexityRating,
+            estimatedDsDevelopmentTimelineMonths: formData.estimatedDsDevelopmentTimelineMonths,
+            estimatedDpDevelopmentTimelineMonths: formData.estimatedDpDevelopmentTimelineMonths,
+            estimatedTotalTimeToFilingMonths: formData.estimatedTotalTimeToFilingMonths,
+            keyDevelopmentRiskFlags: formData.keyDevelopmentRiskFlags,
+            firstToFile180DayExclusivityOpportunity: formData.firstToFile180DayExclusivityOpportunity,
+            therapeuticEquivalenceTeCode: formData.therapeuticEquivalenceTeCode,
+            bdRecommendation: formData.bdRecommendation,
         },
         RegulatoryInsights: {
             regulatoryInsights: formData.regulatoryInsights,

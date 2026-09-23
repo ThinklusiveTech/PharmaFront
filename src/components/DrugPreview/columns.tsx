@@ -1,4 +1,4 @@
-import { capitalizeFirstLetter, unixToDate } from "../../utils/utils";
+import { capitalizeFirstLetter, getCreatedByUser, unixToDate } from "../../utils/utils";
 import BrandNameCellRenderer from "../DrugTable/BrandNameCellRenderer";
 import ActionCellRenderer from "./ActionCellRenderer";
 
@@ -108,14 +108,19 @@ export const columns: any = [
     valueFormatter: valueFormatter
   },
   {
-    headerName: "Therapeutic Area",
+    headerName: "Approved Indications",
     headerClass: "table-header",
-    field: "ProductOverview.therapeuticArea",
+    field: "ProductOverview.approvedIndications",
     sortable: true,
     filter: true,
     autoHeight: true,
     cellStyle: { lineHeight: '1.5', whiteSpace: 'pre-line' },
-    valueFormatter: (params: any) => params.value || params.data?.ProductOverview?.therapeuticArea || params.data?.therapeuticArea || '-'
+    valueFormatter: (params: any) => {
+      const val = params.value || params.data?.ProductOverview?.approvedIndications || params.data?.approvedIndications;
+      if (!val) return '-';
+      if (Array.isArray(val)) return val.filter(Boolean).join(', ');
+      return String(val);
+    }
   },
   {
     headerName: "Approval Date",
@@ -132,5 +137,15 @@ export const columns: any = [
     sortable: true,
     filter: true,
     valueFormatter: valueFormatter
+  },
+  {
+    headerName: "Created By",
+    headerClass: "table-header",
+    field: "createdByName",
+    sortable: true,
+    filter: true,
+    autoHeight: true,
+    cellStyle: { lineHeight: '1.5', whiteSpace: 'pre-line' },
+    valueFormatter: (params: any) => getCreatedByUser(params.data, '-') || '-'
   }
 ];

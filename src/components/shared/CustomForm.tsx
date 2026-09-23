@@ -65,7 +65,12 @@ const CustomForm: React.FC<CustomFormProps> = ({ field, form }) => {
             }));
         }
         if (fieldKey === "region" || fieldKey === "firstApprovedRegion") {
-            return allCountries.map((c: string) => ({ label: c, value: c }));
+            const regionList = Object.keys(activeRegionsCountries).filter(Boolean);
+            const combined = Array.from(new Set([
+                ...regionList,
+                ...allCountries
+            ])).sort();
+            return (combined.length > 0 ? combined : allCountries).map((c: string) => ({ label: c, value: c }));
         }
         if (fieldKey === "indication" || fieldKey === "approvedIndications") {
             const selectedTA = inputRow?.therapeuticArea;
@@ -261,6 +266,17 @@ const CustomForm: React.FC<CustomFormProps> = ({ field, form }) => {
                 );
             }
 
+            case "number":
+                return (
+                    <input
+                        type="number"
+                        value={value ?? ""}
+                        onChange={(e) => onChange(e.target.value)}
+                        placeholder={dynamicField.placeholder || "Enter"}
+                        className={commonClasses}
+                    />
+                );
+
             default:
                 return (
                     <input
@@ -314,34 +330,37 @@ const CustomForm: React.FC<CustomFormProps> = ({ field, form }) => {
 
     const safeTableRows = Array.isArray(tableRows) ? tableRows : [];
     const hasEntries = safeTableRows.length > 0;
-    const headerBg = hasEntries ? "bg-[#0e8a67]/10 border-[#0e8a67]/40 text-[#0e8a67]" : "bg-slate-50/80 border-slate-200 text-slate-800";
-    const badgeStyle = hasEntries ? "bg-[#0e8a67] text-white" : "bg-slate-100 text-slate-600 border border-slate-200";
+    const headerBg = "bg-[#0e8a67]/10 border-[#0e8a67]/40 text-[#0e8a67]";
+    const borderClass = "border-[#0e8a67]/40";
+    const badgeClass = hasEntries
+        ? "bg-[#0e8a67] text-white"
+        : "bg-white text-[#0e8a67] border border-[#0e8a67]/40";
 
-    const displayMainKey = formatKey(cleanLabel || key);
+    const displayMainKey = cleanLabel || formatKey(key);
     const isSingleField = dynamicFields?.length === 1;
 
     return (
-        <div className="space-y-4 mb-6 text-left">
+        <div className="w-full text-left">
             {/* Accordion Box */}
-            <div className={`border rounded-2xl overflow-hidden bg-white shadow-xs transition-all ${hasEntries ? "border-[#0e8a67]/40" : "border-slate-200"}`}>
+            <div className={`border rounded-2xl overflow-hidden bg-white shadow-xs transition-all ${borderClass}`}>
                 {/* Accordion Trigger Header with Main Key Title */}
                 <div
                     onClick={() => setAccordionOpen(!accordionOpen)}
                     className={`px-6 py-4 flex items-center justify-between cursor-pointer transition-colors ${headerBg}`}
                 >
-                    <div className="flex items-center gap-3.5">
-                        <span className="text-sm font-bold font-display">
-                            {editingIndex !== null ? `Editing: ${displayMainKey}` : displayMainKey}
-                        </span>
-                        <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow-2xs ${badgeStyle}`}>
+                    <span className="text-sm font-bold font-display">
+                        {editingIndex !== null ? `Editing: ${displayMainKey}` : displayMainKey}
+                    </span>
+                    <div className="flex items-center gap-3">
+                        <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow-2xs ${badgeClass}`}>
                             {safeTableRows.length} {safeTableRows.length === 1 ? "entry" : "entries"}
                         </span>
+                        {accordionOpen ? (
+                            <FiChevronUp className="w-4 h-4 text-slate-500" />
+                        ) : (
+                            <FiChevronRight className="w-4 h-4 text-slate-500" />
+                        )}
                     </div>
-                    {accordionOpen ? (
-                        <FiChevronUp className="w-4 h-4 text-slate-500" />
-                    ) : (
-                        <FiChevronRight className="w-4 h-4 text-slate-500" />
-                    )}
                 </div>
 
                 {/* Collapsible Input Form */}
