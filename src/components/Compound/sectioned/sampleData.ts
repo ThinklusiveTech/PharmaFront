@@ -49,15 +49,40 @@ export const sampleDrugData = {
         "specialDesignations": [
             {
                 "designationType": "Orphan Drug",
+                "country": "USA",
                 "regulatorBody": "US FDA",
                 "indication": "Antiplatelet therapy",
-                "dateGranted": "2000-06-15"
+                "dateGranted": "2000-06-15",
+                "expiryDate": "2027-06-15",
+                "withdrawn": "No"
+            }
+        ],
+        "exclusivityInfo": [
+            {
+                "designationType": "NCE Exclusivity",
+                "regulatoryBody": "US FDA",
+                "country": "USA",
+                "expiryDate": "2028-10-15"
+            }
+        ],
+        "patentInformation": [
+            {
+                "patentNo": "US 7,654,321",
+                "patentExpiration": "2032-05-12",
+                "drugSubstance": "Yes",
+                "drugProduct": "Yes",
+                "submissionDate": "2015-03-10",
+                "regulatoryBody": "US FDA"
             }
         ],
         "drugPatents": [
             {
-                "designationType": "Drug Product",
-                "expiryDate": "2035-10-15"
+                "patentNo": "US 7,654,321",
+                "patentExpiration": "2032-05-12",
+                "drugSubstance": "Yes",
+                "drugProduct": "Yes",
+                "submissionDate": "2015-03-10",
+                "regulatoryBody": "US FDA"
             }
         ],
         "additionalInfo": [
@@ -94,16 +119,26 @@ export const sampleDrugData = {
         "innName": "Acetylsalicylic Acid",
         "synonyms": "2-Acetoxybenzoic acid; ASA; o-acetylsalicylic acid; Polopiryn",
         "iupacName": "2-acetyloxybenzoic acid",
-        "molecularWeight": "180.16 g/mol",
         "molecularFormula": "C9H8O4",
-        "bcsClass": "BCS Class I",
-        "monoisotopicMass": "180.04 g/mol",
+        "molecularWeight": "180.16 g/mol",
         "structure": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Aspirin-skeletal.svg/400px-Aspirin-skeletal.svg.png",
         "stereochemistry": "Achiral",
-        "solubility": "Soluble in ethanol (1 in 5), ether (1 in 17), and water (1 in 300).",
+        "bcsClass": "Class I",
+        "aqueousSolubility": [
+            { "ph": "1.2", "solvent": "0.1N HCl buffer", "solubility": ">100", "units": "mg/mL" },
+            { "ph": "4.5", "solvent": "Acetate buffer", "solubility": ">100", "units": "mg/mL" },
+            { "ph": "6.8", "solvent": "Phosphate buffer", "solubility": ">100", "units": "mg/mL" }
+        ],
         "pka": "3.5",
         "logp": "1.19",
         "logd": "0.90",
+        "compendialStatus": "USP",
+        "referenceStandard": "USP Reference Standard Catalog #1042500 (Available, 3 weeks lead time)",
+        "hygroscopicity": "Non-hygroscopic",
+        "photostability": "Photostable",
+        "particleSizeDistribution": "D10: 12 um, D50: 45 um, D90: 110 um",
+        "monoisotopicMass": "180.04 g/mol",
+        "solubility": "Soluble in ethanol (1 in 5), ether (1 in 17), and water (1 in 300).",
         "individualSolvent": [
             { "solvent": "Ethanol", "solubility": "200" },
             { "solvent": "Water", "solubility": "3.3" }
@@ -112,82 +147,92 @@ export const sampleDrugData = {
 
     "DrugSubstance": {
         "availableDmfVendors": [
-            { "dmf": "DMF-001", "regulatoryBody": "US FDA", "status": "Active", "type": "Type II", "submissionDate": "2010-01-01", "holder": "Bayer AG", "apiForm": "Free Acid" }
+            { "dmf": "DMF-001", "company": "Bayer AG", "typeOfDmf": "Type II", "yearApproved": "2010", "status": "Active" }
+        ],
+        "ksmAvailability": [
+            { "rsmName": "Salicylic acid", "supplier": "Sigma-Aldrich / Dow Chemical" },
+            { "rsmName": "Acetic anhydride", "supplier": "BASF SE" }
         ],
         "manufacturingRoutes": [
-            { "step": "Acetylation of salicylic acid using acetic anhydride in a batch reactor." },
-            { "step": "Recrystallization from water to obtain high-purity crystals." },
-            { "step": "Drying under vacuum to remove residual solvents." }
+            { "step": "Step 1", "description": "Acetylation of salicylic acid using acetic anhydride in a batch reactor at 85°C." },
+            { "step": "Step 2", "description": "Recrystallization from water/ethanol to obtain high-purity crystalline drug substance." }
+        ],
+        "stableAndCommerciallyUsedPolymorphicForm": "Form I (anhydrous crystalline)",
+        "drugSubstanceSpecifications": [
+            { "testCriteria": "Assay (HPLC)", "acceptanceCriteria": "98.0% - 102.0% on dried basis" },
+            { "testCriteria": "Free Salicylic Acid", "acceptanceCriteria": "NMT 0.1%" },
+            { "testCriteria": "Loss on Drying", "acceptanceCriteria": "NMT 0.5%" }
         ],
         "dsImpurities": [
-            { "nameOfImpurities": "Salicylic Acid", "specifiedUnspecifiedImpurities": "Specified", "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Salicylic_acid.svg/200px-Salicylic_acid.svg.png" }
+            { "name": "Salicylic Acid", "structure": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Salicylic_acid.svg/200px-Salicylic_acid.svg.png", "knownUnknown": "Known" }
+        ],
+        "forcedDegradationStudies": [
+            { "stressCondition": "Acid Hydrolysis", "details": "0.1N HCl, 24h, 60°C", "percentAssay": "98.2", "percentImpurities": "1.8" },
+            { "stressCondition": "Base Hydrolysis", "details": "0.1N NaOH, 6h, 25°C", "percentAssay": "95.4", "percentImpurities": "4.6" }
         ],
         "genotoxicImpurities": [
-            { "genotoxicImpurities": "None identified", "classOfImpurity": "N/A" }
+            { "name": "GTI-1", "gtiClass": "Class 5" }
         ],
-        "stability": "Stable for 36 months under ICH Zone II conditions.",
-        "nitrosaminesAssessment": "No nitrosamine risk identified.",
-        "otherInformation": "No special handling required.",
-        "regulatoryStartingMaterials": "Salicylic acid, Acetic anhydride.",
-        "drugSubstanceSpecifications": "Meets BP/USP monograph requirements.",
-        "stableAndCommerciallyUsedPolymorphicForm": "Form I (anhydrous crystalline)"
+        "nitrosaminesAssessment": [
+            { "nameOfImpurity": "NDMA", "riskOutcome": "Below AI limit (<0.03 ppm)" }
+        ],
+        "recommendedStorageCondition": "Store below 25°C (77°F); excursions permitted to 15-30°C (59-86°F).",
+        "stabilityData": [
+            { "condition": "25°C/60% RH", "durationMonths": "36" },
+            { "condition": "40°C/75% RH", "durationMonths": "6" }
+        ],
+        "packaging": "HDPE drum with double LDPE liner and silica gel desiccant",
+        "otherInformation": "Moisture sensitive; minimize ambient humidity during processing."
     },
 
     "DrugProductInformation": {
-        "dosageFormAndStrength": [
+        "presentation": [
             {
-                "strength": "500 mg",
-                "dosageForm": "Film-coated Tablet",
-                "size": "12mm",
+                "strength": "100 mg",
+                "dosageForm": "Tablet",
+                "shape": "Round",
+                "size": "7.0 mm",
                 "color": "White",
-                "imprinting": "ASP-500",
-                "weight": "550mg",
-                "packaging": "Blister Pack",
-                "ndcCode": "0001-0002-03",
-                "images": "https://via.placeholder.com/600x400?text=Tablet+Visual+QC"
+                "imprint": "ASP100",
+                "ndcCode": "0001-0002-01"
             }
         ],
-        "supplyChain": [
-            { "apiManufacturingAndAnalysis": "Analysis", "company": "QualityFirst Labs", "location": "UK", "reference": "REF-AN-001", "phaseOfProgram": "Phase III" },
-            { "apiManufacturingAndAnalysis": "Manufacturing (Capsules)", "company": "CapsulePharma", "location": "India", "reference": "REF-MFC-002", "phaseOfProgram": "Commercial" },
-            { "apiManufacturingAndAnalysis": "Manufacturing (Tablets)", "company": "TabletWorks Ltd.", "location": "USA", "reference": "REF-MFT-003", "phaseOfProgram": "Commercial" },
-            { "apiManufacturingAndAnalysis": "Packaging", "company": "PackRight Inc.", "location": "Germany", "reference": "REF-PKG-004", "phaseOfProgram": "Commercial" },
-            { "apiManufacturingAndAnalysis": "Labeling", "company": "PrintPharma", "location": "Germany", "reference": "REF-LB-99", "phaseOfProgram": "Commercial" },
-            { "apiManufacturingAndAnalysis": "Distribution", "company": "Global Logistics", "location": "Singapore", "reference": "REF-DT-22" }
+        "containerClosureSystem": [
+            { "component": "Bottle", "material": "HDPE", "function": "Primary moisture barrier" },
+            { "component": "Closure", "material": "Polypropylene (CRC)", "function": "Child-resistant seal" }
         ],
-        "shelfLife": [
-            { "currentExpirationDate": "2027-12-31", "strength": "500mg", "expiryDate": "2027-12-31" }
+        "excipientsCompliance": [
+            { "excipient": "Microcrystalline Cellulose", "proposedLevel": "20% w/w", "fdaIidMaxLevel": "30% w/w (oral tablet)", "status": "Within IID limit" },
+            { "excipient": "Corn Starch", "proposedLevel": "15% w/w", "fdaIidMaxLevel": "25% w/w", "status": "Within IID limit" }
         ],
+        "manufacturingTechnology": "Direct Compression",
         "manufacturingProcess": [
-            { "dsImpurities": "Salicylic Acid", "knownImpurities": "0.1%", "specifiedImpurities": "Yes", "unknownImpurities": "<0.05%" }
+            { "step": "Step 1", "description": "Sifting and blending of API and excipients in a V-blender for 15 minutes." },
+            { "step": "Step 2", "description": "Compression into tablets using rotary tablet press with 7mm tooling." }
         ],
-        "dissolutionStudies": [
+        "maximumDailyDose": "4000 mg/day (analgesic); 325 mg/day (cardiovascular)",
+        "storageAndShippingConditions": "Store at 20°C to 25°C (68°F to 77°F). Protect from moisture and excessive heat.",
+        "drugProductSpecifications": [
+            { "testCriteria": "Dissolution", "methodTechnique": "USP Apparatus II (Paddle), 50 rpm", "acceptanceCriteria": "Q=80% in 30 min" },
+            { "testCriteria": "Assay", "methodTechnique": "HPLC", "acceptanceCriteria": "95.0% - 105.0%" }
+        ],
+        "dpImpurities": [
+            { "name": "Degradant A (Salicylic acid)", "knownUnknown": "Known" }
+        ],
+        "nitrosamineStatement": "No nitrosamines detected or expected based on raw materials and manufacturing process risk assessment.",
+        "stabilityStudies": [
+            { "condition": "25°C/60% RH", "durationMonths": "24", "packaging": "HDPE bottle with induction seal" },
+            { "condition": "40°C/75% RH", "durationMonths": "6", "packaging": "HDPE bottle with induction seal" }
+        ],
+        "dissolutionMethod": [
             {
-                "studyType": "Comparative",
-                "uspApparatus": "Apparatus 2 (Paddle)",
-                "rotationSpeed": "50 rpm",
-                "dissolutionMedium": "0.1N HCl (pH 1.2)",
-                "temperature": "37°C ± 0.5°C",
-                "acceptanceCriteria": "NLT 80% (Q) in 30 minutes"
+                "apparatus": "USP Apparatus II (Paddle)",
+                "media": "900 mL pH 6.8 phosphate buffer",
+                "speedRpm": "50",
+                "samplingTimes": "10, 20, 30, 45 min",
+                "temperature": "37°C ± 0.5°C"
             }
         ],
-        "pharmacokinetics": [
-            {
-                "absorption": "1.5h (Tmax)",
-                "volumeOfDistribution": "0.15 L/kg",
-                "metabolism": "Hepatic (esterase hydrolysis to salicylate)",
-                "excretion": "Renal (urine)",
-                "halfLife": "0.25h (aspirin); 2-3h (salicylate)",
-                "steadyState": "N/A (short t½)",
-                "foodInteractions": "Food slows absorption but does not reduce bioavailability.",
-                "drugInteractions": "Warfarin (increased bleeding risk), other NSAIDs (GI effects), ACE inhibitors (reduced antihypertensive effect)."
-            }
-        ],
-        "formulationChallenges": "High sensitivity to moisture; direct compression preferred.",
-        "stabilityStudies": "Established 36 months stability at 25°C/60% RH.",
-        "maximumDailyDose": "4g/day (analgesic); 100mg/day (antiplatelet)",
-        "excipientsGrade": "USP/NF grade",
-        "storageAndShippingConditions": "Store below 25°C in a dry place, protected from light and moisture.",
         "unmetClinicalNeed": "Need for safer chronic low-dose options for geriatric patients."
     },
 
