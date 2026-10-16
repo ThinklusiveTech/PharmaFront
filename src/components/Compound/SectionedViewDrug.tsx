@@ -265,7 +265,43 @@ export default function SectionedViewDrug() {
 
     const getSectionData = (key?: string) => {
         if (!key || !drugToDisplay) return null;
-        return drugToDisplay[key] ?? displayData?.[key] ?? null;
+        const data = drugToDisplay[key] ?? displayData?.[key] ?? null;
+        if (key === 'DevelopmentFeasibility' && data && typeof data === 'object') {
+            return {
+                drugName: data.drugName || flatDrug.drugName || "—",
+                apiName: data.apiName || flatDrug.apiName || "—",
+                ...data
+            };
+        }
+        if (key === 'ProductOverview' && data && typeof data === 'object') {
+            const { drugName, apiName, ...rest } = data;
+            return rest;
+        }
+        if (key === 'PhysicalChemicalProperties' && data && typeof data === 'object') {
+            const { referenceStandard, ...rest } = data;
+            return rest;
+        }
+        if (key === 'PkAndBe') {
+            const pkData = drugToDisplay.PkAndBe ?? drugToDisplay.PharmacokineticsAndBioequivalence ?? drugToDisplay.BaBeStudies ?? displayData?.PkAndBe ?? displayData?.BaBeStudies ?? null;
+            const oldPk = drugToDisplay.DrugProductInformation?.pharmacokinetics?.[0] || {};
+            const oldBaBe = drugToDisplay.BaBeStudies?.baBeStudies || [];
+            const biowaiver = pkData?.biowaiverEligibility || pkData?.biowaiverGuidance || flatDrug.biowaiverEligibility || flatDrug.biowaiverGuidance || pkData?.biowaiverRequest || "";
+            const { biowaiverGuidance, biowaiverRequest, ...pkDataRest } = pkData || {};
+            return {
+                absorption: pkData?.absorption || oldPk.absorption || flatDrug.absorption || "—",
+                volumeOfDistribution: pkData?.volumeOfDistribution || oldPk.volumeOfDistribution || flatDrug.volumeOfDistribution || "—",
+                metabolism: pkData?.metabolism || oldPk.metabolism || flatDrug.metabolism || "—",
+                halfLife: pkData?.halfLife || oldPk.halfLife || flatDrug.halfLife || "—",
+                excretion: pkData?.excretion || oldPk.excretion || flatDrug.excretion || "—",
+                foodEffect: pkData?.foodEffect || oldPk.foodInteractions || flatDrug.foodEffect || "—",
+                drugInteractions: pkData?.drugInteractions || oldPk.drugInteractions || flatDrug.drugInteractions || "—",
+                baBeStudies: pkData?.baBeStudies || oldBaBe || flatDrug.baBeStudies || [],
+                biowaiverEligibility: biowaiver,
+                additionalInformation: pkData?.additionalInformation || pkData?.otherInformation || flatDrug.additionalInformation || "",
+                ...pkDataRest,
+            };
+        }
+        return data;
     };
 
     return (
@@ -422,16 +458,16 @@ export default function SectionedViewDrug() {
 
                 {/* ── Main Tab Content Wrapper (Screen Only) ── */}
                 <main className="screen-only min-h-[50vh] animate-fadeIn bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 text-left mt-6">
-                    {currentStep === 1 ? (
+                    {currentSection?.key === 'ExecutiveSummary' ? (
                         /* Executive Summary Custom Tab Dashboard */
                         <div className="space-y-8">
                             {/* Heading */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                                 <h1 className="text-xl font-bold text-slate-900 font-display">
-                                    1. Executive Summary
+                                    {currentSection?.id}. {currentSection?.title}
                                 </h1>
                                 <button
-                                    onClick={() => handleNavigateById(2)}
+                                    onClick={() => handleNavigateById(SECTIONS.find(s => s.key === 'ProductOverview')?.id || 3)}
                                     className="text-xs font-bold text-[#0e8a67] hover:text-[#0a7557] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0 self-start sm:self-auto"
                                 >
                                     View Product Overview <FiChevronRight className="w-4 h-4" />

@@ -432,11 +432,15 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
 
             case "file": {
                 const fileValue = fieldValue;
+                const fileList: any[] = Array.isArray(fileValue)
+                    ? fileValue
+                    : (fileValue ? [fileValue] : []);
+
                 return (
                     <div className="space-y-2">
                         <label className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border-main rounded-xl cursor-pointer hover:border-primary hover:bg-primary-light/30 transition-colors ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
                             <span className="text-xs text-body mb-1">Click to upload or drag & drop</span>
-                            <span className="text-[10px] text-body/60">PDF, DOC, images</span>
+                            <span className="text-[10px] text-body/60">PNG, JPEG, PDF, Images</span>
                             <input
                                 type="file"
                                 accept="image/*,.pdf,.doc,.docx"
@@ -444,22 +448,45 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                                 className="sr-only"
                                 onChange={(e) => {
                                     const files = e.target.files;
-                                    if (!files) return;
-                                    const currentFiles = Array.isArray(fieldValue) ? fieldValue : [];
-                                    fieldOnChange([...currentFiles, ...Array.from(files)]);
+                                    if (!files || files.length === 0) return;
+                                    const newFiles = Array.from(files);
+                                    const combined = [...fileList.filter(f => f instanceof File), ...newFiles];
+                                    fieldOnChange(combined.length === 1 ? combined[0] : combined);
                                 }}
                             />
                         </label>
-                        {Array.isArray(fileValue) && fileValue.length > 0 && (
+                        {fileList.length > 0 && (
                             <div className="space-y-1">
-                                {fileValue.map((file: File, index: number) => (
-                                    <div key={index} className="flex items-center justify-between bg-alt px-3 py-2 rounded-lg border border-border-main">
-                                        <span className="text-xs text-main truncate">{file.name}</span>
-                                        <button type="button" onClick={() => fieldOnChange(fileValue.filter((_: File, i: number) => i !== index))} className="text-xs text-red-500 hover:text-red-700 ml-2 font-medium cursor-pointer">
-                                            Remove
-                                        </button>
-                                    </div>
-                                ))}
+                                {fileList.map((file: any, index: number) => {
+                                    const name = file instanceof File
+                                        ? file.name
+                                        : (file?.fileName || file?.name || (typeof file === 'string' ? file.split('/').pop() : `File ${index + 1}`));
+                                    const previewUrl = file instanceof File
+                                        ? URL.createObjectURL(file)
+                                        : (file?.imageData || file?.url || (typeof file === 'string' ? file : null));
+                                    const isImg = previewUrl && (file?.contentType?.startsWith('image/') || /\.(png|jpg|jpeg|gif|webp|svg)/i.test(name || previewUrl) || previewUrl.startsWith('data:image/'));
+
+                                    return (
+                                        <div key={index} className="flex items-center justify-between bg-alt px-3 py-2 rounded-lg border border-border-main">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                {isImg && (
+                                                    <img src={previewUrl} alt={name} className="w-8 h-8 object-contain rounded border border-slate-200 bg-white" />
+                                                )}
+                                                <span className="text-xs text-main truncate max-w-xs">{name}</span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const remaining = fileList.filter((_, i) => i !== index);
+                                                    fieldOnChange(remaining.length === 1 ? remaining[0] : (remaining.length === 0 ? "" : remaining));
+                                                }}
+                                                className="text-xs text-red-500 hover:text-red-700 ml-2 font-medium cursor-pointer"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>

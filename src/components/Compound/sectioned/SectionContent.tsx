@@ -492,7 +492,7 @@ export default function SectionContent({ data, sectionIndex, section }: SectionC
             if (
                 singleKeyNorm === sectionTitleNormalized ||
                 singleKeyNorm === sectionKeyNorm ||
-                ['sources', 'glossary', 'appendices', 'executivesummary', 'labelinginformation', 'babestudies', 'genericentrants'].includes(singleKeyNorm)
+                ['sources', 'glossary', 'appendices', 'executivesummary', 'labelinginformation', 'babestudies', 'genericentrants', 'pkandbe', 'pharmacokineticsandbioequivalence'].includes(singleKeyNorm)
             ) {
                 targetData = targetData[singleKey];
             }
@@ -501,9 +501,7 @@ export default function SectionContent({ data, sectionIndex, section }: SectionC
 
     if (typeof targetData !== 'object' || targetData === null) {
         return (
-            <div className="p-4 border border-emerald-200/60 rounded-xl bg-emerald-50/40 text-slate-800 text-sm whitespace-pre-wrap leading-relaxed shadow-xs">
-                {renderLink(normalizeValue(targetData))}
-            </div>
+            <KeyValueDisplay data={{ additionalInformation: targetData }} />
         );
     }
 
@@ -525,19 +523,23 @@ export default function SectionContent({ data, sectionIndex, section }: SectionC
         // Skip metadata fields in the nested views
         if (METADATA_KEYS_TO_SKIP.includes(key)) return;
 
-        if (key === 'drugSubstanceSpecifications') {
-            complexFields.push([key, value]);
+        const effectiveKey = (!key || !key.trim() || key.toLowerCase() === 'empty' || key.toLowerCase() === 'value')
+            ? 'additionalInformation'
+            : key;
+
+        if (effectiveKey === 'drugSubstanceSpecifications') {
+            complexFields.push([effectiveKey, value]);
             return;
         }
 
         // Format dates cleanly like the view header
-        if (['createdAt', 'updatedAt', 'created_at', 'updated_at', 'lastModified'].includes(key)) {
-            simpleFields[key] = formatDraftDate(value);
+        if (['createdAt', 'updatedAt', 'created_at', 'updated_at', 'lastModified'].includes(effectiveKey)) {
+            simpleFields[effectiveKey] = formatDraftDate(value);
             return;
         }
 
         if (Array.isArray(value)) {
-            complexFields.push([key, value]);
+            complexFields.push([effectiveKey, value]);
         } else if (typeof value === 'object' && value !== null) {
             // If it's a single ImageObject, treat it as complex to get the Renderer's image handling
             if (isImageObject(value)) {
@@ -563,7 +565,7 @@ export default function SectionContent({ data, sectionIndex, section }: SectionC
         const keyNormalized = singleKey.toLowerCase().replace(/[^a-z0-9]/g, "");
         if (
             keyNormalized === sectionTitleNormalized ||
-            ['sources', 'glossary', 'appendices', 'executivesummary', 'regulatoryinsights', 'genericentrants', 'labelinginformation', 'babestudies'].includes(keyNormalized)
+            ['sources', 'glossary', 'appendices', 'executivesummary', 'regulatoryinsights', 'genericentrants', 'labelinginformation', 'babestudies', 'pkandbe', 'pharmacokineticsandbioequivalence'].includes(keyNormalized)
         ) {
             return <SubsectionRenderer title={section?.title || singleKey} data={singleValue} index={activeSectionIndex} />;
         }

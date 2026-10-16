@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import DynamicFormBuilder from "../shared";
-import { addExecutiveSummary, addProductOverview, addDevelopmentFeasibility, addPhysicalChemicalProperties, addDrugSubstance, addDrugProductInformation, addAppendices, addRegulatoryInsights, addLabelingInformation, addGenericEntrants, addBaBeStudies, addSources, addGlossary } from "./columns";
+import { addExecutiveSummary, addProductOverview, addDevelopmentFeasibility, addPhysicalChemicalProperties, addDrugSubstance, addDrugProductInformation, addAppendices, addRegulatoryInsights, addLabelingInformation, addGenericEntrants, addPkAndBe, addBaBeStudies, addSources, addGlossary } from "./columns";
 import { formatCreatedDrug, flattenDrug } from "./helper";
 import { isValueFilled, getBadgeStyle } from "../../utils/formUtils";
 import usePost from "../../hooks/usePost";
@@ -33,8 +33,9 @@ const stepDescriptions: { [key: string]: string } = {
     "Physical & Chemical Properties": "Provide molecular formula, structure, solubility, and other properties.",
     "Drug Substance": "Provide active pharmaceutical ingredient details, manufacturers, and synthesis pathways.",
     "Drug Product Information": "Provide dosage strengths, formulations, packaging, and shelf-life details.",
+    "Pharmacokinetics & Bioequivalence": "",
+    "BA/BE Studies": "",
     "Labeling Information": "Provide package inserts, warnings, precautions, and FDA approved labels.",
-    "BA/BE Studies": "Provide bioequivalence data, clinical trial outcomes, and comparative studies.",
     "Sources": "List all references, databases, and scientific papers used for this drug entry.",
     "Glossary": "Define key terms, abbreviations, and clinical jargon used in this entry.",
     "Appendices": "Attach additional files, charts, raw data, or supplementary materials.",
@@ -121,16 +122,16 @@ const CompoundForm = () => {
     }, [draftId, drugId, drafts, loadDraft, loadedDraftId, location.state]);
 
     const steps = [
-        { title: "Product Overview", fields: addProductOverview },
-        { title: "Executive Summary", fields: addExecutiveSummary },
         { title: "Development Feasibility & Timeline", fields: addDevelopmentFeasibility },
+        { title: "Executive Summary", fields: addExecutiveSummary },
+        { title: "Product Overview", fields: addProductOverview },
         { title: "Regulatory Insights", fields: addRegulatoryInsights },
         { title: "Generic Entrants", fields: addGenericEntrants },
         { title: "Physical & Chemical Properties", fields: addPhysicalChemicalProperties },
         { title: "Drug Substance", fields: addDrugSubstance },
         { title: "Drug Product Information", fields: addDrugProductInformation },
+        { title: "Pharmacokinetics & Bioequivalence", fields: addPkAndBe },
         { title: "Labeling Information", fields: addLabelingInformation },
-        { title: "BA/BE Studies", fields: addBaBeStudies },
         { title: "Sources", fields: addSources },
         { title: "Glossary", fields: addGlossary },
         { title: "Appendices", fields: addAppendices },

@@ -133,7 +133,6 @@ export const sampleDrugData = {
         "logp": "1.19",
         "logd": "0.90",
         "compendialStatus": "USP",
-        "referenceStandard": "USP Reference Standard Catalog #1042500 (Available, 3 weeks lead time)",
         "hygroscopicity": "Non-hygroscopic",
         "photostability": "Photostable",
         "particleSizeDistribution": "D10: 12 um, D50: 45 um, D90: 110 um",
@@ -147,7 +146,7 @@ export const sampleDrugData = {
 
     "DrugSubstance": {
         "availableDmfVendors": [
-            { "dmf": "DMF-001", "company": "Bayer AG", "typeOfDmf": "Type II", "yearApproved": "2010", "status": "Active" }
+            { "dmf": "DMF-001", "holder": "Bayer AG", "apiForm": "Form I (Crystalline)", "company": "Bayer AG", "typeOfDmf": "Type II", "yearApproved": "2010", "status": "Active" }
         ],
         "ksmAvailability": [
             { "rsmName": "Salicylic acid", "supplier": "Sigma-Aldrich / Dow Chemical" },
@@ -256,6 +255,8 @@ export const sampleDrugData = {
             }
         ],
         "biowaiverRequest": "Requested based on BCS Class I profile.",
+        "biowaiverEligibility": "Conditional",
+        "additionalInformation": "Standard BE study protocol complies with USFDA and EMA guidance.",
         "dissolutionTestMethodAndSamplingTimes": "USP <711> Apparatus 2, 50 rpm, 900 mL 0.1N HCl. Times: 5, 15, 30, 45 min."
     },
 

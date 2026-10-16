@@ -41,8 +41,8 @@ export const flattenDrug = (drug: any): any => {
 
         // Product Overview
         version: existingVersion,
-        drugName: drug.ProductOverview?.drugName ?? drug.drugName ?? drug.name ?? "",
-        apiName: drug.ProductOverview?.apiName ?? drug.apiName ?? "",
+        drugName: drug.DevelopmentFeasibility?.drugName ?? drug.ProductOverview?.drugName ?? drug.drugName ?? drug.name ?? "",
+        apiName: drug.DevelopmentFeasibility?.apiName ?? drug.ProductOverview?.apiName ?? drug.apiName ?? "",
         mechanismOfAction: drug.ProductOverview?.mechanismOfAction ?? drug.mechanismOfAction ?? "",
         companyName: drug.ProductOverview?.companyName ?? drug.companyName ?? drug.innovator ?? "",
         approvedIndications: drug.ProductOverview?.approvedIndications ?? drug.approvedIndications ?? "",
@@ -71,6 +71,10 @@ export const flattenDrug = (drug: any): any => {
                 : (typeof drug.ProductOverview?.globalAnnualRevenue === 'string' && drug.ProductOverview.globalAnnualRevenue.trim()
                     ? [{ fiscalYear: "", region: "", revenue: drug.ProductOverview.globalAnnualRevenue, currency: "USD" }]
                     : [])),
+        marketLandscapeSummary: drug.ProductOverview?.marketLandscapeSummary ?? drug.marketLandscapeSummary ?? "",
+        marketCompetitors: Array.isArray(drug.ProductOverview?.marketCompetitors)
+            ? drug.ProductOverview.marketCompetitors
+            : (Array.isArray(drug.marketCompetitors) ? drug.marketCompetitors : []),
         marketingRights: Array.isArray(drug.ProductOverview?.marketingRights)
             ? drug.ProductOverview.marketingRights
             : (Array.isArray(drug.ProductOverview?.marketingDistributionRights)
@@ -101,9 +105,11 @@ export const flattenDrug = (drug: any): any => {
         // Generic Entrants
         genericEntrants: drug.GenericEntrants?.genericEntrants ?? drug.genericEntrants ?? [],
         genericsApprovedByEma: drug.GenericEntrants?.genericsApprovedByEma ?? drug.genericsApprovedByEma ?? [],
+        additionalInformation: drug.GenericEntrants?.additionalInformation ?? drug.additionalInformation ?? (typeof drug.GenericEntrants?.additionalInfo === 'string' ? drug.GenericEntrants.additionalInfo : (typeof drug.RegulatoryInsights?.additionalInfo === 'string' ? drug.RegulatoryInsights.additionalInfo : "")),
 
         // Physical & Chemical Properties
         innName: drug.PhysicalChemicalProperties?.innName ?? drug.innName ?? "",
+        casNumber: drug.PhysicalChemicalProperties?.casNumber ?? drug.casNumber ?? "",
         synonyms: drug.PhysicalChemicalProperties?.synonyms ?? drug.synonyms ?? "",
         iupacName: drug.PhysicalChemicalProperties?.iupacName ?? drug.iupacName ?? "",
         molecularWeight: drug.PhysicalChemicalProperties?.molecularWeight ?? drug.molecularWeight ?? "",
@@ -112,8 +118,6 @@ export const flattenDrug = (drug: any): any => {
         monoisotopicMass: drug.PhysicalChemicalProperties?.monoisotopicMass ?? drug.monoisotopicMass ?? "",
         structure: drug.PhysicalChemicalProperties?.structure ?? drug.structure ?? "",
         stereochemistry: drug.PhysicalChemicalProperties?.stereochemistry ?? drug.stereochemistry ?? "",
-        solubility: drug.PhysicalChemicalProperties?.solubility ?? drug.solubility ?? "",
-        aqueousSolubility: drug.PhysicalChemicalProperties?.aqueousSolubility ?? drug.aqueousSolubility ?? [],
         pka: drug.PhysicalChemicalProperties?.pka ?? drug.pka ?? "",
         logp: drug.PhysicalChemicalProperties?.logp ?? drug.logp ?? "",
         logd: drug.PhysicalChemicalProperties?.logd ?? drug.logd ?? "",
@@ -122,12 +126,10 @@ export const flattenDrug = (drug: any): any => {
         hygroscopicity: drug.PhysicalChemicalProperties?.hygroscopicity ?? drug.hygroscopicity ?? "",
         photostability: drug.PhysicalChemicalProperties?.photostability ?? drug.photostability ?? "",
         particleSizeDistribution: drug.PhysicalChemicalProperties?.particleSizeDistribution ?? drug.particleSizeDistribution ?? "",
-        individualSolvent: drug.PhysicalChemicalProperties?.individualSolvent ?? drug.individualSolvent ?? [],
+        individualSolvent: drug.PhysicalChemicalProperties?.individualSolvent ?? drug.individualSolvent ?? drug.PhysicalChemicalProperties?.aqueousSolubility ?? drug.aqueousSolubility ?? [],
 
         // Drug Substance
         availableDmfVendors: drug.DrugSubstance?.availableDmfVendors ?? drug.availableDmfVendors ?? [],
-        ksmAvailability: drug.DrugSubstance?.ksmAvailability ?? drug.ksmAvailability ?? drug.DrugSubstance?.regulatoryStartingMaterials ?? (typeof drug.regulatoryStartingMaterials === 'string' ? [{ rsmName: drug.regulatoryStartingMaterials, supplier: "" }] : (drug.regulatoryStartingMaterials ?? [])),
-        regulatoryStartingMaterials: drug.DrugSubstance?.regulatoryStartingMaterials ?? drug.regulatoryStartingMaterials ?? "",
         manufacturingRoutes: drug.DrugSubstance?.manufacturingRoutes ?? drug.manufacturingRoutes ?? [],
         stableAndCommerciallyUsedPolymorphicForm: drug.DrugSubstance?.stableAndCommerciallyUsedPolymorphicForm ?? drug.stableAndCommerciallyUsedPolymorphicForm ?? "",
         drugSubstanceSpecifications: drug.DrugSubstance?.drugSubstanceSpecifications ?? drug.drugSubstanceSpecifications ?? [],
@@ -137,13 +139,15 @@ export const flattenDrug = (drug: any): any => {
         nitrosaminesAssessment: drug.DrugSubstance?.nitrosaminesAssessment ?? drug.nitrosaminesAssessment ?? [],
         recommendedStorageCondition: drug.DrugSubstance?.recommendedStorageCondition ?? drug.recommendedStorageCondition ?? "",
         stabilityData: drug.DrugSubstance?.stabilityData ?? drug.stabilityData ?? drug.DrugSubstance?.stability ?? drug.stability ?? [],
-        packaging: drug.DrugSubstance?.packaging ?? drug.packaging ?? "",
-        otherInformation: drug.DrugSubstance?.otherInformation ?? drug.otherInformation ?? "",
+        otherInformation: drug.DrugSubstance?.additionalInformation ?? drug.DrugSubstance?.otherInformation ?? drug.otherInformation ?? "",
 
         // Drug Product Information
         presentation: drug.DrugProductInformation?.presentation ?? drug.presentation ?? drug.DrugProductInformation?.dosageFormAndStrength ?? drug.dosageFormAndStrength ?? [],
         containerClosureSystem: drug.DrugProductInformation?.containerClosureSystem ?? drug.containerClosureSystem ?? [],
-        excipientsCompliance: drug.DrugProductInformation?.excipientsCompliance ?? drug.excipientsCompliance ?? [],
+        excipientsCompliance: (drug.DrugProductInformation?.excipientsCompliance ?? drug.excipientsCompliance ?? []).map((item: any) => ({
+            ...item,
+            grade: item?.grade || drug.DrugProductInformation?.excipientsGrade || drug.excipientsGrade || "",
+        })),
         manufacturingTechnology: drug.DrugProductInformation?.manufacturingTechnology ?? drug.manufacturingTechnology ?? "",
         manufacturingProcess: drug.DrugProductInformation?.manufacturingProcess ?? drug.manufacturingProcess ?? [],
         maximumDailyDose: drug.DrugProductInformation?.maximumDailyDose ?? drug.maximumDailyDose ?? "",
@@ -156,18 +160,22 @@ export const flattenDrug = (drug: any): any => {
         dosageFormAndStrength: drug.DrugProductInformation?.dosageFormAndStrength ?? drug.dosageFormAndStrength ?? [],
         supplyChain: drug.DrugProductInformation?.supplyChain ?? drug.supplyChain ?? [],
         shelfLife: drug.DrugProductInformation?.shelfLife ?? drug.shelfLife ?? [],
-        pharmacokinetics: drug.DrugProductInformation?.pharmacokinetics ?? drug.pharmacokinetics ?? [],
         formulationChallenges: drug.DrugProductInformation?.formulationChallenges ?? drug.formulationChallenges ?? "",
         excipientsGrade: drug.DrugProductInformation?.excipientsGrade ?? drug.excipientsGrade ?? "",
         unmetClinicalNeed: drug.DrugProductInformation?.unmetClinicalNeed ?? drug.unmetClinicalNeed ?? "",
 
-        // Labeling
-        labelingInformation: drug.LabelingInformation?.labelingInformation ?? (Array.isArray(drug.LabelingInformation) ? drug.LabelingInformation : (drug.labelingInformation ?? [])),
-
-        // BA/BE Studies
-        baBeStudies: drug.BaBeStudies?.baBeStudies ?? drug.baBeStudies ?? [],
-        biowaiverRequest: drug.BaBeStudies?.biowaiverRequest ?? drug.biowaiverRequest ?? "",
-        dissolutionTestMethodAndSamplingTimes: drug.BaBeStudies?.dissolutionTestMethodAndSamplingTimes ?? drug.dissolutionTestMethodAndSamplingTimes ?? "",
+        // Pharmacokinetics & Bioequivalence (PK & BE)
+        absorption: drug.PkAndBe?.absorption ?? drug.PharmacokineticsAndBioequivalence?.absorption ?? drug.DrugProductInformation?.pharmacokinetics?.[0]?.absorption ?? drug.absorption ?? "",
+        volumeOfDistribution: drug.PkAndBe?.volumeOfDistribution ?? drug.PharmacokineticsAndBioequivalence?.volumeOfDistribution ?? drug.DrugProductInformation?.pharmacokinetics?.[0]?.volumeOfDistribution ?? drug.volumeOfDistribution ?? "",
+        metabolism: drug.PkAndBe?.metabolism ?? drug.PharmacokineticsAndBioequivalence?.metabolism ?? drug.DrugProductInformation?.pharmacokinetics?.[0]?.metabolism ?? drug.metabolism ?? "",
+        halfLife: drug.PkAndBe?.halfLife ?? drug.PharmacokineticsAndBioequivalence?.halfLife ?? drug.DrugProductInformation?.pharmacokinetics?.[0]?.halfLife ?? drug.halfLife ?? "",
+        excretion: drug.PkAndBe?.excretion ?? drug.PharmacokineticsAndBioequivalence?.excretion ?? drug.DrugProductInformation?.pharmacokinetics?.[0]?.excretion ?? drug.excretion ?? "",
+        foodEffect: drug.PkAndBe?.foodEffect ?? drug.PharmacokineticsAndBioequivalence?.foodEffect ?? drug.DrugProductInformation?.pharmacokinetics?.[0]?.foodInteractions ?? drug.foodEffect ?? "",
+        drugInteractions: drug.PkAndBe?.drugInteractions ?? drug.PharmacokineticsAndBioequivalence?.drugInteractions ?? drug.DrugProductInformation?.pharmacokinetics?.[0]?.drugInteractions ?? drug.drugInteractions ?? "",
+        baBeStudies: drug.PkAndBe?.baBeStudies ?? drug.PharmacokineticsAndBioequivalence?.baBeStudies ?? drug.BaBeStudies?.baBeStudies ?? drug.baBeStudies ?? [],
+        biowaiverEligibility: drug.PkAndBe?.biowaiverEligibility ?? drug.PkAndBe?.biowaiverGuidance ?? drug.PharmacokineticsAndBioequivalence?.biowaiverEligibility ?? drug.PharmacokineticsAndBioequivalence?.biowaiverGuidance ?? drug.BaBeStudies?.biowaiverRequest ?? drug.biowaiverEligibility ?? drug.biowaiverGuidance ?? "",
+        biowaiverGuidance: drug.PkAndBe?.biowaiverEligibility ?? drug.PkAndBe?.biowaiverGuidance ?? drug.PharmacokineticsAndBioequivalence?.biowaiverEligibility ?? drug.PharmacokineticsAndBioequivalence?.biowaiverGuidance ?? drug.BaBeStudies?.biowaiverRequest ?? drug.biowaiverEligibility ?? drug.biowaiverGuidance ?? "",
+        additionalInformation: drug.PkAndBe?.additionalInformation ?? drug.PharmacokineticsAndBioequivalence?.additionalInformation ?? drug.GenericEntrants?.additionalInformation ?? drug.additionalInformation ?? (typeof drug.GenericEntrants?.additionalInfo === 'string' ? drug.GenericEntrants.additionalInfo : (typeof drug.RegulatoryInsights?.additionalInfo === 'string' ? drug.RegulatoryInsights.additionalInfo : "")),
 
         // Sources / Glossary / Appendices
         sources: extractSources(drug.Sources ?? drug.sources),
@@ -232,8 +240,6 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
         ExecutiveSummary: formData.executiveSummary,
         ProductOverview: {
             version: formData.version || "1.0",
-            drugName: formData.drugName,
-            apiName: formData.apiName,
             mechanismOfAction: formData.mechanismOfAction,
             companyName: formData.companyName,
             approvedIndications: formData.approvedIndications,
@@ -248,6 +254,8 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
             dosageFormAndStrength: formData.dosageFormsAndStrengths || formData.dosageFormAndStrength || [],
             dosageFormsAndStrengths: formData.dosageFormsAndStrengths || formData.dosageFormAndStrength || [],
             globalAnnualRevenue: formData.globalAnnualRevenue || [],
+            marketLandscapeSummary: formData.marketLandscapeSummary,
+            marketCompetitors: formData.marketCompetitors || [],
             marketingRights: formData.marketingRights || formData.marketingDistributionRights || [],
             marketingDistributionRights: formData.marketingRights || formData.marketingDistributionRights || [],
             timeFromLoeToFirstGenericLaunchMonths: formData.timeFromLoeToFirstGenericLaunchMonths ?? formData.timeFromLoeToFirstGenericLaunch ?? "",
@@ -267,6 +275,8 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
             expiredDate: formData.expiredDate,
         },
         DevelopmentFeasibility: {
+            drugName: formData.drugName,
+            apiName: formData.apiName,
             recommendedRegulatoryPathway: formData.recommendedRegulatoryPathway,
             overallCmcComplexityRating: formData.overallCmcComplexityRating,
             estimatedDsDevelopmentTimelineMonths: formData.estimatedDsDevelopmentTimelineMonths,
@@ -282,17 +292,17 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
             regionalApproval: formData.regionalApproval,
             approvalDetails: formData.approvalDetails,
             specialDesignations: formData.specialDesignations,
-            exclusivityInfo: formData.exclusivityInfo,
             patentInformation: formData.patentInformation || formData.drugPatents || [],
             drugPatents: formData.patentInformation || formData.drugPatents || [],
-            additionalInfo: formData.additionalInfo,
         },
         GenericEntrants: {
             genericEntrants: formData.genericEntrants,
             genericsApprovedByEma: formData.genericsApprovedByEma,
+            additionalInformation: formData.additionalInformation,
         },
         PhysicalChemicalProperties: {
             innName: formData.innName,
+            casNumber: formData.casNumber,
             synonyms: formData.synonyms,
             iupacName: formData.iupacName,
             molecularWeight: formData.molecularWeight,
@@ -301,8 +311,6 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
             monoisotopicMass: formData.monoisotopicMass,
             structure: formData.structure,
             stereochemistry: formData.stereochemistry,
-            solubility: formData.solubility,
-            aqueousSolubility: formData.aqueousSolubility,
             pka: formData.pka,
             logp: formData.logp,
             logd: formData.logd,
@@ -315,8 +323,6 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
         },
         DrugSubstance: {
             availableDmfVendors: formData.availableDmfVendors,
-            ksmAvailability: formData.ksmAvailability,
-            regulatoryStartingMaterials: formData.regulatoryStartingMaterials || (Array.isArray(formData.ksmAvailability) ? formData.ksmAvailability.map((k: any) => k.rsmName).filter(Boolean).join(", ") : ""),
             manufacturingRoutes: formData.manufacturingRoutes,
             stableAndCommerciallyUsedPolymorphicForm: formData.stableAndCommerciallyUsedPolymorphicForm,
             drugSubstanceSpecifications: formData.drugSubstanceSpecifications,
@@ -326,8 +332,8 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
             nitrosaminesAssessment: formData.nitrosaminesAssessment,
             recommendedStorageCondition: formData.recommendedStorageCondition,
             stabilityData: formData.stabilityData,
-            stability: formData.stabilityData || formData.stability,
-            packaging: formData.packaging,
+            stability: formData.stabilityData,
+            additionalInformation: formData.otherInformation,
             otherInformation: formData.otherInformation,
         },
         DrugProductInformation: {
@@ -344,20 +350,28 @@ export const formatCreatedDrug = async (formData: any): Promise<any> => {
             stabilityStudies: formData.stabilityStudies,
             dissolutionMethod: formData.dissolutionMethod,
             dosageFormAndStrength: formData.presentation || formData.dosageFormAndStrength,
-            supplyChain: formData.supplyChain,
             shelfLife: formData.shelfLife,
             dissolutionStudies: formData.dissolutionMethod || formData.dissolutionStudies,
-            pharmacokinetics: formData.pharmacokinetics,
-            formulationChallenges: formData.formulationChallenges,
-            excipientsGrade: formData.excipientsGrade,
-            unmetClinicalNeed: formData.unmetClinicalNeed,
         },
-        LabelingInformation: formData.labelingInformation,
+        PkAndBe: {
+            absorption: formData.absorption,
+            volumeOfDistribution: formData.volumeOfDistribution,
+            metabolism: formData.metabolism,
+            halfLife: formData.halfLife,
+            excretion: formData.excretion,
+            foodEffect: formData.foodEffect,
+            drugInteractions: formData.drugInteractions,
+            baBeStudies: formData.baBeStudies,
+            biowaiverEligibility: formData.biowaiverEligibility || formData.biowaiverGuidance,
+            biowaiverGuidance: formData.biowaiverEligibility || formData.biowaiverGuidance,
+            additionalInformation: formData.additionalInformation,
+        },
         BaBeStudies: {
             baBeStudies: formData.baBeStudies,
-            biowaiverRequest: formData.biowaiverRequest,
-            dissolutionTestMethodAndSamplingTimes: formData.dissolutionTestMethodAndSamplingTimes,
+            biowaiverEligibility: formData.biowaiverEligibility || formData.biowaiverGuidance,
+            biowaiverRequest: formData.biowaiverEligibility || formData.biowaiverGuidance,
         },
+        LabelingInformation: formData.labelingInformation,
         Sources: formData.sources,
         Glossary: formData.glossary,
         Appendices: formData.appendices,
