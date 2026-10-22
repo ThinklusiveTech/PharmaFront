@@ -1,6 +1,7 @@
-import { capitalizeFirstLetter, unixToDate } from "../../utils/utils";
+import { capitalizeFirstLetter, getCreatedByUser, unixToDate } from "../../utils/utils";
 import BookmarkCellRenderer from "./BookmarkCellRenderer";
 import BrandNameCellRenderer from "./BrandNameCellRenderer";
+import ActionMenuCellRenderer from "./ActionMenuCellRenderer";
 
 
 const valueFormatter = (params: { value?: any; colDef?: any }): string => {
@@ -32,6 +33,19 @@ const valueFormatter = (params: { value?: any; colDef?: any }): string => {
 
 
 export const columns: any = [
+  {
+    headerName: "Actions",
+    headerClass: "table-header",
+    field: "actions",
+    cellRenderer: ActionMenuCellRenderer,
+    width: 100,
+    pinned: "left",
+    sortable: false,
+    filter: false,
+    resizable: false,
+    suppressHeaderMenuButton: true,
+    suppressColumnsToolPanel: true,
+  },
   {
     headerName: "Bookmark",
     headerClass: "table-header",
@@ -109,14 +123,19 @@ export const columns: any = [
     valueFormatter: valueFormatter
   },
   {
-    headerName: "Therapeutic Area",
+    headerName: "Approved Indications",
     headerClass: "table-header",
-    field: "ProductOverview.therapeuticArea",
+    field: "ProductOverview.approvedIndications",
     sortable: true,
     filter: true,
     autoHeight: true,
     cellStyle: { lineHeight: '1.5', whiteSpace: 'pre-line' },
-    valueFormatter: (params: any) => params.value || params.data?.ProductOverview?.therapeuticArea || params.data?.therapeuticArea || '-'
+    valueFormatter: (params: any) => {
+      const val = params.value || params.data?.ProductOverview?.approvedIndications || params.data?.approvedIndications;
+      if (!val) return '-';
+      if (Array.isArray(val)) return val.filter(Boolean).join(', ');
+      return String(val);
+    }
   },
   {
     headerName: "Approval Date",
@@ -133,5 +152,15 @@ export const columns: any = [
     sortable: true,
     filter: true,
     valueFormatter: valueFormatter
+  },
+  {
+    headerName: "Created By",
+    headerClass: "table-header",
+    field: "createdByName",
+    sortable: true,
+    filter: true,
+    autoHeight: true,
+    cellStyle: { lineHeight: '1.5', whiteSpace: 'pre-line' },
+    valueFormatter: (params: any) => getCreatedByUser(params.data, '-') || '-'
   }
 ]

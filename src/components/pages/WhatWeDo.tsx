@@ -3,10 +3,44 @@ import { FiDatabase, FiShield, FiFileText, FiCheckCircle, FiBarChart2, FiUsers, 
 import MoleculeBackground from '../shared/MoleculeBackground';
 import Image1 from "../../../public/assets/Whatwedoimage1.png";
 import Image2 from "../../../public/assets/Whatwedoimage2.png";
+import Image3 from "../../../public/assets/Whatwedoimage3.png";
+
+const profileCards = [
+    {
+        number: "01",
+        title: "Drug substance",
+        description: "Structure, stereochemistry, BCS class, solubility, pKa, LogP, and polymorphic form."
+    },
+    {
+        number: "02",
+        title: "Process & controls",
+        description: "Synthetic route, in-process controls, specifications, known impurities and genotoxicity data."
+    },
+    {
+        number: "03",
+        title: "Drug product",
+        description: "Excipients, dissolution method, presentation, packaging, storage and shelf life."
+    },
+    {
+        number: "04",
+        title: "Regulatory status",
+        description: "Approvals by region, special designations, patents, NCE exclusivity and loss-of-exclusivity dates."
+    },
+    {
+        number: "05",
+        title: "Generics & BE",
+        description: "ANDAs and DMF landscape, product-specific guidance, bioequivalence status and dissolution database extract."
+    },
+    {
+        number: "06",
+        title: "Clinical & PK",
+        description: "Pivotal trials, half-life, metabolism, food effect and drug interactions."
+    }
+];
 
 const WhatWeDo: React.FC = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const images = [Image1, Image2];
+    const images = [Image1, Image2, Image3];
 
     const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + images.length) % images.length);
     const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % images.length);
@@ -41,7 +75,25 @@ const WhatWeDo: React.FC = () => {
                 description: "Empowering innovation through enriched data, advanced analytics, and expert insights."
             }
         ],
-        // Slide 2 Content (Generic drug development pipeline - 4 items)
+        // Slide 2 Content (3 items)
+        [
+            {
+                icon: <FiDatabase className="w-8 h-8" />,
+                title: "Enriched Data",
+                description: "Comprehensive data for all functions to use the same information."
+            },
+            {
+                icon: <FiUsers className="w-8 h-8" />,
+                title: "Expert Insights",
+                description: "Benefit from dedicated experts."
+            },
+            {
+                icon: <FiFileText className="w-8 h-8" />,
+                title: "Bioequivalence",
+                description: "Summarize available product specific guidance on BE studies."
+            }
+        ],
+        // Slide 3 Content (Generic drug development pipeline - 4 items, moved from slide 2)
         [
             {
                 icon: <FiActivity className="w-8 h-8" />,
@@ -92,12 +144,11 @@ const WhatWeDo: React.FC = () => {
                         </h1>
                         
                         <h2 className="text-xl md:text-2xl font-bold text-section font-display mb-4 mt-8 leading-snug">
-                            Translating complex data <br className="hidden xl:block" />
-                            into life-changing possibilities
+                            Everything about an approved drugs chemistry manufacturing and regulatory pathway in one report
                         </h2>
                         
-                        <p className="text-lg text-body leading-relaxed max-w-lg">
-                            A data-driven platform that accelerates and de-risks drug development with real-world intelligence and advanced analytics.
+                        <p className="text-base sm:text-lg text-body leading-relaxed max-w-lg">
+                            Structure drug profiles covering deeper insight about drug substance, drug product, approval history, compiled from FDA labels, the orange books, and public filings with every data point sourced.
                         </p>
                     </div>
 
@@ -140,7 +191,7 @@ const WhatWeDo: React.FC = () => {
 
                 {/* Dynamic Features Strip */}
                 <div className="mb-16 bg-primary-light rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm border border-border-main transition-all duration-500 ease-in-out">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left font-sans">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 ${stripContent[currentSlide].length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-8 text-left font-sans`}>
                         {stripContent[currentSlide].map((item, idx) => (
                             <div key={idx} className="flex flex-col items-start gap-4">
                                 <div className="bg-primary text-white p-3 rounded-full flex-shrink-0 shadow-md flex items-center justify-center">
@@ -157,105 +208,35 @@ const WhatWeDo: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Bottom Card */}
-                <div className="bg-white rounded-3xl shadow-sm border border-border-main overflow-hidden flex flex-col lg:flex-row">
-                    {/* Left Half */}
-                    <div className="lg:w-5/12 bg-alt p-10 lg:p-14 flex flex-col justify-center items-start border-r border-border-main relative">
-                        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-50 pointer-events-none -z-10">
-                            <div className="absolute top-0 right-0 w-[150%] h-[150%] rounded-full bg-gradient-to-br from-primary-light to-transparent blur-3xl mix-blend-multiply transform -translate-y-1/2 translate-x-1/4"></div>
+                {/* What's in a profile Section */}
+                <div className="mb-12">
+                    <div className="max-w-3xl mb-8">
+                        <div className="inline-flex items-center gap-2 text-primary font-bold text-xs tracking-wider uppercase mb-3 bg-primary-light px-3 py-1 rounded-full border border-primary-light">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                            What's in a profile
                         </div>
-                        
-                        <div className="w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center mb-8 relative border-[6px] border-primary-light">
-                            <div className="w-16 h-16 rounded-full bg-navy flex items-center justify-center text-primary">
-                                <FiBarChart2 className="w-8 h-8 text-white" />
-                            </div>
-                        </div>
-                        <h2 className="text-2xl lg:text-3xl font-bold text-main font-display mb-4 leading-tight">
-                            A data-driven platform that accelerates and de-risks drug development
+                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-main font-display tracking-tight leading-tight">
+                            The data your teams normally piece together from a dozen sources
                         </h2>
-                        <p className="text-body text-lg">
-                            Combining enriched data, advanced analytics, and expert insights.
-                        </p>
                     </div>
 
-                    {/* Right Half */}
-                    <div className="lg:w-7/12 p-8 lg:p-12">
-                        <div className="flex flex-col gap-6">
-                            {/* Item 1 */}
-                            <div className="flex items-start gap-6 group cursor-default">
-                                <div className="flex-shrink-0 w-10 h-10 rounded bg-navy text-white flex items-center justify-center font-bold font-display text-sm shadow-sm">
-                                    01
-                                </div>
-                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary-light text-primary flex items-center justify-center">
-                                    <FiDatabase className="w-5 h-5" />
-                                </div>
-                                <div className="flex-grow">
-                                    <h4 className="font-bold text-section font-display mb-1 group-hover:text-primary transition-colors">Enriched Data</h4>
-                                    <p className="text-body text-sm">Access comprehensive and high-quality datasets from global sources.</p>
-                                </div>
-                                <div className="text-gray-300 group-hover:text-primary transition-colors mt-2">
-                                    <FiChevronRight className="w-5 h-5" />
-                                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6">
+                        {profileCards.map((card, idx) => (
+                            <div 
+                                key={idx}
+                                className="bg-white rounded-2xl border border-border-main p-6 sm:p-7 shadow-xs hover:shadow-md hover:border-primary/40 transition-all flex flex-col justify-start group"
+                            >
+                                <span className="text-xs font-mono font-bold text-primary mb-2">
+                                    {card.number}
+                                </span>
+                                <h3 className="text-lg font-bold text-main font-display mb-2 group-hover:text-primary transition-colors">
+                                    {card.title}
+                                </h3>
+                                <p className="text-body text-sm leading-relaxed">
+                                    {card.description}
+                                </p>
                             </div>
-
-                            <hr className="border-border-main" />
-
-                            {/* Item 2 */}
-                            <div className="flex items-start gap-6 group cursor-default">
-                                <div className="flex-shrink-0 w-10 h-10 rounded bg-primary text-white flex items-center justify-center font-bold font-display text-sm shadow-sm">
-                                    02
-                                </div>
-                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary-light text-primary flex items-center justify-center">
-                                    <FiBarChart2 className="w-5 h-5" />
-                                </div>
-                                <div className="flex-grow">
-                                    <h4 className="font-bold text-section font-display mb-1 group-hover:text-primary transition-colors">Advanced Analytics</h4>
-                                    <p className="text-body text-sm">Leverage AI/ML models and statistical insights for smarter decisions.</p>
-                                </div>
-                                <div className="text-gray-300 group-hover:text-primary transition-colors mt-2">
-                                    <FiChevronRight className="w-5 h-5" />
-                                </div>
-                            </div>
-
-                            <hr className="border-border-main" />
-
-                            {/* Item 3 */}
-                            <div className="flex items-start gap-6 group cursor-default">
-                                <div className="flex-shrink-0 w-10 h-10 rounded bg-primary text-white flex items-center justify-center font-bold font-display text-sm shadow-sm opacity-90">
-                                    03
-                                </div>
-                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary-light text-primary flex items-center justify-center">
-                                    <FiUsers className="w-5 h-5" />
-                                </div>
-                                <div className="flex-grow">
-                                    <h4 className="font-bold text-section font-display mb-1 group-hover:text-primary transition-colors">Expert Insights</h4>
-                                    <p className="text-body text-sm">Benefit from domain expertise and deep therapeutic knowledge.</p>
-                                </div>
-                                <div className="text-gray-300 group-hover:text-primary transition-colors mt-2">
-                                    <FiChevronRight className="w-5 h-5" />
-                                </div>
-                            </div>
-
-                            <hr className="border-border-main" />
-
-                            {/* Item 4 */}
-                            <div className="flex items-start gap-6 group cursor-default">
-                                <div className="flex-shrink-0 w-10 h-10 rounded bg-primary text-white flex items-center justify-center font-bold font-display text-sm shadow-sm opacity-80">
-                                    04
-                                </div>
-                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary-light text-primary flex items-center justify-center">
-                                    <FiShield className="w-5 h-5" />
-                                </div>
-                                <div className="flex-grow">
-                                    <h4 className="font-bold text-section font-display mb-1 group-hover:text-primary transition-colors">Regulatory Confidence</h4>
-                                    <p className="text-body text-sm">Built-in checks to ensure accuracy, consistency, and regulatory relevance.</p>
-                                </div>
-                                <div className="text-gray-300 group-hover:text-primary transition-colors mt-2">
-                                    <FiChevronRight className="w-5 h-5" />
-                                </div>
-                            </div>
-
-                        </div>
+                        ))}
                     </div>
                 </div>
 

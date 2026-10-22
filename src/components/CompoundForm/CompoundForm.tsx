@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import DynamicFormBuilder from "../shared";
-import { addExecutiveSummary, addProductOverview, addPhysicalChemicalProperties, addDrugSubstance, addDrugProductInformation, addAppendices, addRegulatoryInsights, addLabelingInformation, addGenericEntrants, addBaBeStudies, addSources, addGlossary } from "./columns";
+import { addExecutiveSummary, addProductOverview, addDevelopmentFeasibility, addPhysicalChemicalProperties, addDrugSubstance, addDrugProductInformation, addAppendices, addRegulatoryInsights, addLabelingInformation, addGenericEntrants, addPkAndBe, addBaBeStudies, addSources, addGlossary } from "./columns";
 import { formatCreatedDrug, flattenDrug } from "./helper";
 import { isValueFilled, getBadgeStyle } from "../../utils/formUtils";
 import usePost from "../../hooks/usePost";
@@ -27,13 +27,15 @@ const drugService = new DrugService();
 const stepDescriptions: { [key: string]: string } = {
     "Executive Summary": "Provide a high-level summary of the drug, its therapeutic use, market potential, and key insights.",
     "Product Overview": "Provide basic drug details, regulatory indications, global revenue, and commercial information.",
+    "Development Feasibility & Timeline": "Provide recommended regulatory pathways, CMC complexity ratings, timelines, and business development recommendations.",
     "Regulatory Insights": "Provide regulatory approval status, designations, patents, and other compliance related information.",
     "Generic Entrants": "Provide generic alternatives, ANDA numbers, approval types, and commercial details.",
     "Physical & Chemical Properties": "Provide molecular formula, structure, solubility, and other properties.",
     "Drug Substance": "Provide active pharmaceutical ingredient details, manufacturers, and synthesis pathways.",
     "Drug Product Information": "Provide dosage strengths, formulations, packaging, and shelf-life details.",
+    "Pharmacokinetics & Bioequivalence": "",
+    "BA/BE Studies": "",
     "Labeling Information": "Provide package inserts, warnings, precautions, and FDA approved labels.",
-    "BA/BE Studies": "Provide bioequivalence data, clinical trial outcomes, and comparative studies.",
     "Sources": "List all references, databases, and scientific papers used for this drug entry.",
     "Glossary": "Define key terms, abbreviations, and clinical jargon used in this entry.",
     "Appendices": "Attach additional files, charts, raw data, or supplementary materials.",
@@ -120,15 +122,16 @@ const CompoundForm = () => {
     }, [draftId, drugId, drafts, loadDraft, loadedDraftId, location.state]);
 
     const steps = [
-        { title: "Product Overview", fields: addProductOverview },
+        { title: "Development Feasibility & Timeline", fields: addDevelopmentFeasibility },
         { title: "Executive Summary", fields: addExecutiveSummary },
+        { title: "Product Overview", fields: addProductOverview },
         { title: "Regulatory Insights", fields: addRegulatoryInsights },
         { title: "Generic Entrants", fields: addGenericEntrants },
         { title: "Physical & Chemical Properties", fields: addPhysicalChemicalProperties },
         { title: "Drug Substance", fields: addDrugSubstance },
         { title: "Drug Product Information", fields: addDrugProductInformation },
+        { title: "Pharmacokinetics & Bioequivalence", fields: addPkAndBe },
         { title: "Labeling Information", fields: addLabelingInformation },
-        { title: "BA/BE Studies", fields: addBaBeStudies },
         { title: "Sources", fields: addSources },
         { title: "Glossary", fields: addGlossary },
         { title: "Appendices", fields: addAppendices },
@@ -419,40 +422,61 @@ const CompoundForm = () => {
         let notStarted = 0;
 
         if (hasHeaders) {
-            // Group fields by header
-            const groups: { header: any; fields: any[] }[] = [];
-            let currentGroup: { header: any; fields: any[] } = { header: null, fields: [] };
+            type SubsectionGroup =
+                | { type: "header"; header: any; fields: any[] }
+                | { type: "dynamic"; field: any };
+
+            const groups: SubsectionGroup[] = [];
+            let currentHeader: any = null;
+            let currentHeaderFields: any[] = [];
+
+            const flushHeader = () => {
+                if (currentHeader) {
+                    groups.push({ type: "header", header: currentHeader, fields: currentHeaderFields });
+                    currentHeader = null;
+                    currentHeaderFields = [];
+                }
+            };
+
             fields.forEach(field => {
                 if (field.type === "header") {
-                    if (currentGroup.fields.length > 0 || currentGroup.header) {
-                        groups.push(currentGroup);
-                    }
-                    currentGroup = { header: field, fields: [] };
+                    flushHeader();
+                    currentHeader = field;
+                    currentHeaderFields = [];
+                } else if (field.type === "dynamic") {
+                    flushHeader();
+                    groups.push({ type: "dynamic", field });
                 } else {
-                    currentGroup.fields.push(field);
+                    if (currentHeader) {
+                        currentHeaderFields.push(field);
+                    }
                 }
             });
-            if (currentGroup.fields.length > 0 || currentGroup.header) {
-                groups.push(currentGroup);
-            }
+            flushHeader();
 
             groups.forEach(g => {
-                if (!g.header) return;
-                let filled = 0;
-                let total = 0;
-                g.fields.forEach(f => {
-                    const val = formData[f.key];
-                    total++;
-                    if (Array.isArray(val)) {
-                        if (val.length > 0) filled++;
-                    } else if (val !== undefined && val !== null && String(val).trim() !== "") {
-                        filled++;
-                    }
-                });
+                if (g.type === "dynamic") {
+                    const tableRows = formData[g.field.key] || [];
+                    const hasRows = Array.isArray(tableRows) && tableRows.length > 0;
+                    if (hasRows) complete++;
+                    else notStarted++;
+                } else {
+                    let filled = 0;
+                    let total = 0;
+                    g.fields.forEach(f => {
+                        const val = formData[f.key];
+                        total++;
+                        if (Array.isArray(val)) {
+                            if (val.length > 0) filled++;
+                        } else if (val !== undefined && val !== null && String(val).trim() !== "") {
+                            filled++;
+                        }
+                    });
 
-                if (filled === 0) notStarted++;
-                else if (filled === total) complete++;
-                else inProgress++;
+                    if (total === 0 || filled === 0) notStarted++;
+                    else if (filled === total) complete++;
+                    else inProgress++;
+                }
             });
         } else {
             // Check dynamic fields as subsections
@@ -585,7 +609,7 @@ const CompoundForm = () => {
                             </div>
                         </div>
 
-                                                {steps[currentStep].fields.some((f) => f.type === "header" || f.type === "dynamic") ? (
+                        {steps[currentStep].fields.some((f) => f.type === "header" || f.type === "dynamic") ? (
                             <DynamicFormBuilder
                                 fields={steps[currentStep].fields}
                                 form={formWithErrors}
@@ -598,11 +622,9 @@ const CompoundForm = () => {
                                 <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden transition-all ${style.borderClass}`}>
                                     {/* Card header */}
                                     <div className={`px-6 sm:px-8 py-4 border-b flex items-center justify-between transition-colors ${style.headerCardBg}`}>
-                                        <div className="flex items-center gap-3">
-                                            <h2 className="text-base font-bold font-display">
-                                                {steps[currentStep].title}
-                                            </h2>
-                                        </div>
+                                        <h2 className="text-base font-bold font-display">
+                                            {steps[currentStep].title}
+                                        </h2>
                                         {totalFieldsCount > 0 && (
                                             <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow-2xs ${style.badgeClass}`}>
                                                 {completedFieldsCount}/{totalFieldsCount}
