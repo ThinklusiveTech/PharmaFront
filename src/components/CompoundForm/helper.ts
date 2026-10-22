@@ -105,7 +105,6 @@ export const flattenDrug = (drug: any): any => {
         // Generic Entrants
         genericEntrants: drug.GenericEntrants?.genericEntrants ?? drug.genericEntrants ?? [],
         genericsApprovedByEma: drug.GenericEntrants?.genericsApprovedByEma ?? drug.genericsApprovedByEma ?? [],
-        additionalInformation: drug.GenericEntrants?.additionalInformation ?? drug.additionalInformation ?? (typeof drug.GenericEntrants?.additionalInfo === 'string' ? drug.GenericEntrants.additionalInfo : (typeof drug.RegulatoryInsights?.additionalInfo === 'string' ? drug.RegulatoryInsights.additionalInfo : "")),
 
         // Physical & Chemical Properties
         innName: drug.PhysicalChemicalProperties?.innName ?? drug.innName ?? "",

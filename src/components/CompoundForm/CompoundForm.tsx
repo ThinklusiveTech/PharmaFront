@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import DynamicFormBuilder from "../shared";
-import { addExecutiveSummary, addProductOverview, addDevelopmentFeasibility, addPhysicalChemicalProperties, addDrugSubstance, addDrugProductInformation, addAppendices, addRegulatoryInsights, addLabelingInformation, addGenericEntrants, addPkAndBe, addBaBeStudies, addSources, addGlossary } from "./columns";
+import { addExecutiveSummary, addProductOverview, addDevelopmentFeasibility, addPhysicalChemicalProperties, addDrugSubstance, addDrugProductInformation, addAppendices, addRegulatoryInsights, addLabelingInformation, addGenericEntrants, addPkAndBe, addSources, addGlossary } from "./columns";
 import { formatCreatedDrug, flattenDrug } from "./helper";
 import { isValueFilled, getBadgeStyle } from "../../utils/formUtils";
 import usePost from "../../hooks/usePost";
