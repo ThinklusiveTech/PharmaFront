@@ -176,8 +176,8 @@ const Contacts: React.FC = () => {
                         </div>
                         <div>
                             <h4 className="font-bold text-section font-display mb-1">Call us</h4>
-                            <a href="tel:+15551234567" className="text-body hover:text-primary transition-colors text-sm">
-                                +1 (555) 123-4567
+                            <a href="tel:+12524123410" className="text-body hover:text-primary transition-colors text-sm">
+                                +1 (252) 412-3410
                             </a>
                         </div>
                     </div>
@@ -203,8 +203,7 @@ const Contacts: React.FC = () => {
                         <div>
                             <h4 className="font-bold text-section font-display mb-1">Our Office</h4>
                             <p className="text-body text-sm leading-relaxed">
-                                123 Innovation Drive, Suite 400<br/>
-                                Boston, MA 02110, USA
+                                Frisco, Texas 75035
                             </p>
                         </div>
                     </div>
