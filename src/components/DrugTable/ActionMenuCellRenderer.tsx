@@ -32,9 +32,15 @@ const ActionMenuCellRenderer: React.FC<any> = (params) => {
     e.stopPropagation();
     if (buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
+      const menuWidth = 128;
+      let left = rect.left + window.scrollX;
+      if (left + menuWidth > window.innerWidth) {
+        left = rect.right + window.scrollX - menuWidth;
+      }
+      left = Math.max(10, left);
       setCoords({
         top: rect.bottom + window.scrollY,
-        left: rect.right + window.scrollX - 120, // Align right edge of menu with button
+        left: left,
       });
     }
     setIsOpen(!isOpen);

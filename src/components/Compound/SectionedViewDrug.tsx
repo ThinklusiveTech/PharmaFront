@@ -237,9 +237,71 @@ export default function SectionedViewDrug() {
     const displayCid = getDisplayCid(drugToDisplay, cid);
     const lastUpdatedDate = getDrugLastModifiedDate(drugToDisplay, cid);
 
+    const formattedGlobalAnnualRevenue = useMemo(() => {
+        const rev = flatDrug.globalAnnualRevenue;
+        if (!rev) return "—";
+        if (Array.isArray(rev)) {
+            if (rev.length === 0) return "—";
+            return rev
+                .map((item: any) => {
+                    if (!item) return "";
+                    if (typeof item === 'string') return item;
+                    const revPart = [item.currency, item.revenue].filter(Boolean).join(" ") || item.revenue || "";
+                    const regionPart = [item.region, item.fiscalYear].filter(Boolean).join(" ");
+                    if (regionPart && revPart) return `${revPart} (${regionPart})`;
+                    return revPart || regionPart || "";
+                })
+                .filter(Boolean)
+                .join("; ") || "—";
+        }
+        if (typeof rev === 'object') {
+            const revPart = [rev.currency, rev.revenue].filter(Boolean).join(" ") || rev.revenue || "";
+            const regionPart = [rev.region, rev.fiscalYear].filter(Boolean).join(" ");
+            if (regionPart && revPart) return `${revPart} (${regionPart})`;
+            return revPart || regionPart || "—";
+        }
+        return String(rev) || "—";
+    }, [flatDrug.globalAnnualRevenue]);
+
     const getSectionData = (key?: string) => {
         if (!key || !drugToDisplay) return null;
-        return drugToDisplay[key] ?? displayData?.[key] ?? null;
+        const data = drugToDisplay[key] ?? displayData?.[key] ?? null;
+        if (key === 'DevelopmentFeasibility' && data && typeof data === 'object') {
+            return {
+                drugName: data.drugName || flatDrug.drugName || "—",
+                apiName: data.apiName || flatDrug.apiName || "—",
+                ...data
+            };
+        }
+        if (key === 'ProductOverview' && data && typeof data === 'object') {
+            const { drugName, apiName, ...rest } = data;
+            return rest;
+        }
+        if (key === 'PhysicalChemicalProperties' && data && typeof data === 'object') {
+            const { referenceStandard, ...rest } = data;
+            return rest;
+        }
+        if (key === 'PkAndBe') {
+            const pkData = drugToDisplay.PkAndBe ?? drugToDisplay.PharmacokineticsAndBioequivalence ?? drugToDisplay.BaBeStudies ?? displayData?.PkAndBe ?? displayData?.BaBeStudies ?? null;
+            const oldPk = drugToDisplay.DrugProductInformation?.pharmacokinetics?.[0] || {};
+            const oldBaBe = drugToDisplay.BaBeStudies?.baBeStudies || [];
+            const biowaiver = pkData?.biowaiverEligibility || pkData?.biowaiverGuidance || flatDrug.biowaiverEligibility || flatDrug.biowaiverGuidance || pkData?.biowaiverRequest || "";
+            const { biowaiverGuidance, biowaiverRequest, ...pkDataRest } = pkData || {};
+            return {
+                absorption: pkData?.absorption || oldPk.absorption || flatDrug.absorption || "—",
+                volumeOfDistribution: pkData?.volumeOfDistribution || oldPk.volumeOfDistribution || flatDrug.volumeOfDistribution || "—",
+                metabolism: pkData?.metabolism || oldPk.metabolism || flatDrug.metabolism || "—",
+                halfLife: pkData?.halfLife || oldPk.halfLife || flatDrug.halfLife || "—",
+                excretion: pkData?.excretion || oldPk.excretion || flatDrug.excretion || "—",
+                foodEffect: pkData?.foodEffect || oldPk.foodInteractions || flatDrug.foodEffect || "—",
+                drugInteractions: pkData?.drugInteractions || oldPk.drugInteractions || flatDrug.drugInteractions || "—",
+                baBeStudies: pkData?.baBeStudies || oldBaBe || flatDrug.baBeStudies || [],
+                biowaiverEligibility: biowaiver,
+                additionalInformation: pkData?.additionalInformation || pkData?.otherInformation || flatDrug.additionalInformation || "",
+                ...pkDataRest,
+            };
+        }
+        return data;
     };
 
     return (
@@ -396,16 +458,16 @@ export default function SectionedViewDrug() {
 
                 {/* ── Main Tab Content Wrapper (Screen Only) ── */}
                 <main className="screen-only min-h-[50vh] animate-fadeIn bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 text-left mt-6">
-                    {currentStep === 1 ? (
+                    {currentSection?.key === 'ExecutiveSummary' ? (
                         /* Executive Summary Custom Tab Dashboard */
                         <div className="space-y-8">
                             {/* Heading */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
                                 <h1 className="text-xl font-bold text-slate-900 font-display">
-                                    1. Executive Summary
+                                    {currentSection?.id}. {currentSection?.title}
                                 </h1>
                                 <button
-                                    onClick={() => handleNavigateById(2)}
+                                    onClick={() => handleNavigateById(SECTIONS.find(s => s.key === 'ProductOverview')?.id || 3)}
                                     className="text-xs font-bold text-[#0e8a67] hover:text-[#0a7557] hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0 self-start sm:self-auto"
                                 >
                                     View Product Overview <FiChevronRight className="w-4 h-4" />
@@ -565,7 +627,7 @@ export default function SectionedViewDrug() {
                                         </div>
                                         <div className="flex justify-between py-2.5">
                                             <span className="font-semibold text-slate-400">Global Annual Revenue</span>
-                                            <span className="font-bold text-slate-800">{flatDrug.globalAnnualRevenue || "—"}</span>
+                                            <span className="font-bold text-slate-800 text-right max-w-[200px] truncate" title={formattedGlobalAnnualRevenue}>{formattedGlobalAnnualRevenue}</span>
                                         </div>
                                         <div className="flex justify-between py-2.5">
                                             <span className="font-semibold text-slate-400">DMF Vendors Count</span>

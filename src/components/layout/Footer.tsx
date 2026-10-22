@@ -11,8 +11,8 @@ const navLinks = [
 
 const contactItems = [
   { icon: <FiMail className="w-4 h-4" />,    text: 'sgarapati@cmcintel.com', href: 'mailto:sgarapati@cmcintel.com' },
-  { icon: <FiPhone className="w-4 h-4" />,   text: '+1 (555) 123-4567',       href: 'tel:+15551234567' },
-  { icon: <FiMapPin className="w-4 h-4" />,  text: 'Boston, MA 02110, USA',   href: undefined },
+  { icon: <FiPhone className="w-4 h-4" />,   text: '+1 (252) 412-3410',       href: 'tel:+12524123410' },
+  { icon: <FiMapPin className="w-4 h-4" />,  text: 'Frisco, Texas 75035',     href: undefined },
 ];
 
 const Footer: React.FC = () => (

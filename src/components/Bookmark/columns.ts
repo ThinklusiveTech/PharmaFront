@@ -1,4 +1,4 @@
-import { capitalizeFirstLetter } from "../../utils/utils";
+import { capitalizeFirstLetter, getCreatedByUser } from "../../utils/utils";
 import BrandNameCellRenderer from "../DrugTable/BrandNameCellRenderer";
 import ActionMenuCellRenderer from "../DrugTable/ActionMenuCellRenderer";
 import type { ColDef } from "ag-grid-community";
@@ -26,6 +26,17 @@ const valueFormatter = (params: { value?: any }): string => {
 };
 
 export const columns: ColDef[] = [
+  {
+    headerName: 'Actions',
+    field: 'actions',
+    cellRenderer: ActionMenuCellRenderer,
+    width: 100,
+    pinned: 'left',
+    sortable: false,
+    filter: false,
+    resizable: false,
+    suppressColumnsToolPanel: true
+  },
   {
     headerName: "CID",
     headerClass: "table-header",
@@ -97,14 +108,19 @@ export const columns: ColDef[] = [
     valueFormatter: valueFormatter
   },
   {
-    headerName: "Therapeutic Area",
+    headerName: "Approved Indications",
     headerClass: "table-header",
-    field: "ProductOverview.therapeuticArea",
+    field: "ProductOverview.approvedIndications",
     sortable: true,
     filter: true,
     autoHeight: true,
     cellStyle: { lineHeight: '1.5', whiteSpace: 'pre-line' },
-    valueFormatter: (params: any) => params.value || params.data?.ProductOverview?.therapeuticArea || params.data?.therapeuticArea || '-'
+    valueFormatter: (params: any) => {
+      const val = params.value || params.data?.ProductOverview?.approvedIndications || params.data?.approvedIndications;
+      if (!val) return '-';
+      if (Array.isArray(val)) return val.filter(Boolean).join(', ');
+      return String(val);
+    }
   },
   {
     headerName: "Approval Date",
@@ -123,14 +139,13 @@ export const columns: ColDef[] = [
     valueFormatter: valueFormatter
   },
   {
-    headerName: 'Actions',
-    field: 'actions',
-    cellRenderer: ActionMenuCellRenderer,
-    width: 110,
-    pinned: 'right',
-    sortable: false,
-    filter: false,
-    resizable: false,
-    suppressColumnsToolPanel: true
+    headerName: "Created By",
+    headerClass: "table-header",
+    field: "createdByName",
+    sortable: true,
+    filter: true,
+    autoHeight: true,
+    cellStyle: { lineHeight: '1.5', whiteSpace: 'pre-line' },
+    valueFormatter: (params: any) => getCreatedByUser(params.data, '-') || '-'
   }
 ]

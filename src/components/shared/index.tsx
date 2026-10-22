@@ -432,11 +432,15 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
 
             case "file": {
                 const fileValue = fieldValue;
+                const fileList: any[] = Array.isArray(fileValue)
+                    ? fileValue
+                    : (fileValue ? [fileValue] : []);
+
                 return (
                     <div className="space-y-2">
                         <label className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border-main rounded-xl cursor-pointer hover:border-primary hover:bg-primary-light/30 transition-colors ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
                             <span className="text-xs text-body mb-1">Click to upload or drag & drop</span>
-                            <span className="text-[10px] text-body/60">PDF, DOC, images</span>
+                            <span className="text-[10px] text-body/60">PNG, JPEG, PDF, Images</span>
                             <input
                                 type="file"
                                 accept="image/*,.pdf,.doc,.docx"
@@ -444,22 +448,45 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                                 className="sr-only"
                                 onChange={(e) => {
                                     const files = e.target.files;
-                                    if (!files) return;
-                                    const currentFiles = Array.isArray(fieldValue) ? fieldValue : [];
-                                    fieldOnChange([...currentFiles, ...Array.from(files)]);
+                                    if (!files || files.length === 0) return;
+                                    const newFiles = Array.from(files);
+                                    const combined = [...fileList.filter(f => f instanceof File), ...newFiles];
+                                    fieldOnChange(combined.length === 1 ? combined[0] : combined);
                                 }}
                             />
                         </label>
-                        {Array.isArray(fileValue) && fileValue.length > 0 && (
+                        {fileList.length > 0 && (
                             <div className="space-y-1">
-                                {fileValue.map((file: File, index: number) => (
-                                    <div key={index} className="flex items-center justify-between bg-alt px-3 py-2 rounded-lg border border-border-main">
-                                        <span className="text-xs text-main truncate">{file.name}</span>
-                                        <button type="button" onClick={() => fieldOnChange(fileValue.filter((_: File, i: number) => i !== index))} className="text-xs text-red-500 hover:text-red-700 ml-2 font-medium cursor-pointer">
-                                            Remove
-                                        </button>
-                                    </div>
-                                ))}
+                                {fileList.map((file: any, index: number) => {
+                                    const name = file instanceof File
+                                        ? file.name
+                                        : (file?.fileName || file?.name || (typeof file === 'string' ? file.split('/').pop() : `File ${index + 1}`));
+                                    const previewUrl = file instanceof File
+                                        ? URL.createObjectURL(file)
+                                        : (file?.imageData || file?.url || (typeof file === 'string' ? file : null));
+                                    const isImg = previewUrl && (file?.contentType?.startsWith('image/') || /\.(png|jpg|jpeg|gif|webp|svg)/i.test(name || previewUrl) || previewUrl.startsWith('data:image/'));
+
+                                    return (
+                                        <div key={index} className="flex items-center justify-between bg-alt px-3 py-2 rounded-lg border border-border-main">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                {isImg && (
+                                                    <img src={previewUrl} alt={name} className="w-8 h-8 object-contain rounded border border-slate-200 bg-white" />
+                                                )}
+                                                <span className="text-xs text-main truncate max-w-xs">{name}</span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const remaining = fileList.filter((_, i) => i !== index);
+                                                    fieldOnChange(remaining.length === 1 ? remaining[0] : (remaining.length === 0 ? "" : remaining));
+                                                }}
+                                                className="text-xs text-red-500 hover:text-red-700 ml-2 font-medium cursor-pointer"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
@@ -484,23 +511,39 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         }
     };
 
-    // Group fields by header
-    const groups: { header: FieldConfig | null; fields: FieldConfig[] }[] = [];
+    // Group fields by header or dynamic fields
+    const hasHeaders = fields.some(f => f.type === "header");
+
+    type FormGroup =
+        | { type: "header"; header: FieldConfig; fields: FieldConfig[] }
+        | { type: "dynamic"; field: FieldConfig }
+        | { type: "flat"; fields: FieldConfig[] };
+
+    const groups: FormGroup[] = [];
     let currentGroup: { header: FieldConfig | null; fields: FieldConfig[] } = { header: null, fields: [] };
+
+    const flushCurrentGroup = () => {
+        if (currentGroup.header) {
+            groups.push({ type: "header", header: currentGroup.header, fields: currentGroup.fields });
+            currentGroup = { header: null, fields: [] };
+        } else if (currentGroup.fields.length > 0) {
+            groups.push({ type: "flat", fields: currentGroup.fields });
+            currentGroup = { header: null, fields: [] };
+        }
+    };
 
     fields.forEach((field) => {
         if (field.type === "header") {
-            if (currentGroup.fields.length > 0 || currentGroup.header) {
-                groups.push(currentGroup);
-            }
+            flushCurrentGroup();
             currentGroup = { header: field, fields: [] };
+        } else if (field.type === "dynamic") {
+            flushCurrentGroup();
+            groups.push({ type: "dynamic", field });
         } else {
             currentGroup.fields.push(field);
         }
     });
-    if (currentGroup.fields.length > 0 || currentGroup.header) {
-        groups.push(currentGroup);
-    }
+    flushCurrentGroup();
 
     const renderFieldsGrid = (groupFields: FieldConfig[]) => {
         const gridItems = groupFields.map((field, idx) => {
@@ -561,16 +604,31 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
         );
     };
 
-    // If there is only one group and no header, render it as a flat form
-    if (groups.length === 1 && groups[0].header === null) {
-        return renderFieldsGrid(groups[0].fields);
+    // If there are no headers in the step, render as a flat form
+    if (!hasHeaders) {
+        return renderFieldsGrid(fields);
     }
 
     return (
         <div className="space-y-4 text-left">
             {groups.map((group, groupIdx) => {
+                if (group.type === "dynamic") {
+                    return (
+                        <div key={group.field.key || groupIdx} className="w-full">
+                            {renderFieldComponent(group.field)}
+                        </div>
+                    );
+                }
+
+                if (group.type === "flat") {
+                    return (
+                        <div key={`flat-${groupIdx}`} className="w-full">
+                            {renderFieldsGrid(group.fields)}
+                        </div>
+                    );
+                }
+
                 const header = group.header;
-                if (!header) return null;
                 const isOpen = !!openHeaders[header.key];
 
                 const groupFields = group.fields.filter(f => f.type !== "header");
@@ -595,21 +653,21 @@ const DynamicFormBuilder: React.FC<DynamicFormBuilderProps> = ({
                             onClick={() => toggleHeader(header.key)}
                             className={`px-6 py-4 flex items-center justify-between cursor-pointer transition-colors ${style.headerBg}`}
                         >
-                            <div className="flex items-center gap-3.5">
-                                <span className="text-sm font-bold font-display">
-                                    {header.label}
-                                </span>
+                            <span className="text-sm font-bold font-display">
+                                {header.label}
+                            </span>
+                            <div className="flex items-center gap-3">
                                 {totalCount > 0 && (
                                     <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shadow-2xs ${style.badgeClass}`}>
                                         {filledCount}/{totalCount}
                                     </span>
                                 )}
+                                {isOpen ? (
+                                    <FiChevronUp className="w-4 h-4 text-slate-500" />
+                                ) : (
+                                    <FiChevronRight className="w-4 h-4 text-slate-500" />
+                                )}
                             </div>
-                            {isOpen ? (
-                                <FiChevronUp className="w-4 h-4 text-slate-500" />
-                            ) : (
-                                <FiChevronRight className="w-4 h-4 text-slate-500" />
-                            )}
                         </div>
 
                         {/* Accordion panel content */}
